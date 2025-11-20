@@ -47,9 +47,10 @@ const floatShield = keyframes`
   }
 `;
 
-const LoginLayout = ({ children }) => {
+const LoginLayout = ({ children, inputFocused = false }) => {
   return (
     <Box
+      className={inputFocused ? 'login-layout-input-focused' : ''}
       sx={{
         minHeight: "100vh",
         height: "100vh",
@@ -58,8 +59,8 @@ const LoginLayout = ({ children }) => {
         alignItems: "flex-start",
         justifyContent: "center",
         position: "relative",
-        overflow: "hidden",
-        overflowY: "auto",
+        overflow: inputFocused ? "hidden" : { xs: "hidden", sm: "auto" },
+        overflowY: inputFocused ? "hidden" : { xs: "hidden", sm: "auto" },
         padding: { xs: 1, sm: 2, md: 4 },
         paddingTop: { xs: 0, sm: 1, md: 2 },
         background: `

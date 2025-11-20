@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -16,7 +16,24 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
+
+  // Efecto para agregar/quitar clase al body cuando un input está enfocado
+  useEffect(() => {
+    if (inputFocused && window.innerWidth <= 480) {
+      document.body.classList.add('login-input-focused');
+      document.documentElement.classList.add('login-input-focused');
+    } else {
+      document.body.classList.remove('login-input-focused');
+      document.documentElement.classList.remove('login-input-focused');
+    }
+    
+    return () => {
+      document.body.classList.remove('login-input-focused');
+      document.documentElement.classList.remove('login-input-focused');
+    };
+  }, [inputFocused]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,8 +57,8 @@ function Login() {
   };
 
   return (
-    <LoginLayout>
-      <div className="login-container">
+    <LoginLayout inputFocused={inputFocused}>
+      <div className={`login-container ${inputFocused ? 'input-focused' : ''}`} style={{ width: '100%', maxWidth: '100%' }}>
         <header className="login-header">
           <img 
             src={logoFondo} 
@@ -72,6 +89,8 @@ function Login() {
                   type="text"
                   value={usuario}
                   onChange={(e) => setUsuario(e.target.value)}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
                   placeholder="Ingresa tu usuario"
                   required
                 />
@@ -86,6 +105,8 @@ function Login() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
                     placeholder="••••••••"
                     required
                   />
