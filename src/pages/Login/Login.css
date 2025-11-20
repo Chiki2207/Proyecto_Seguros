@@ -238,6 +238,25 @@
   border: 1px solid rgba(255, 220, 100, 0.4);
   position: relative;
   overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.4s ease,
+              border-radius 0.4s ease;
+  transform-origin: center center;
+}
+
+/* Zoom del formulario en móviles cuando se presiona submit */
+@media (max-width: 480px) {
+  .login-form.form-zoomed {
+    transform: scale(1.05);
+    box-shadow: 0 30px 80px rgba(255, 220, 100, 0.4), 
+                0 12px 32px rgba(255, 200, 80, 0.3), 
+                0 0 0 3px rgba(255, 220, 100, 0.6), 
+                inset 0 2px 0 rgba(255, 255, 255, 0.7), 
+                0 0 60px rgba(255, 220, 100, 0.4);
+    border-radius: 32px;
+    z-index: 10;
+    position: relative;
+  }
 }
 
 .login-form::before {
@@ -340,12 +359,32 @@
   font-weight: 500;
   color: #333;
   box-shadow: 0 4px 12px rgba(255, 220, 100, 0.1), 0 0 0 0 rgba(255, 220, 100, 0.3);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .login-field input:hover {
   border-color: rgba(255, 220, 100, 0.7);
   box-shadow: 0 6px 16px rgba(255, 220, 100, 0.15), 0 0 0 2px rgba(255, 220, 100, 0.4);
   transform: translateY(-2px);
+}
+
+/* Mejoras táctiles para móviles */
+@media (hover: none) and (pointer: coarse) {
+  .login-field input:active {
+    transform: translateY(-1px) scale(0.99);
+    border-color: rgba(255, 220, 100, 0.8);
+  }
+  
+  .login-submit:active {
+    transform: translateY(0) scale(0.97);
+  }
+  
+  .login-toggle:active {
+    transform: scale(0.9);
+  }
 }
 
 .login-field input:focus {
@@ -447,7 +486,7 @@
 
 .login-submit {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background: linear-gradient(135deg, #ffb300 0%, #ffc107 50%, #ffd54f 100%);
   color: #ffffff;
   border: none;
@@ -455,19 +494,102 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 4px 12px rgba(255, 200, 80, 0.4), 0 2px 6px rgba(255, 180, 60, 0.3);
   margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.login-submit::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.login-submit:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .login-submit:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
   background: linear-gradient(135deg, #ffc107 0%, #ffd54f 50%, #ffe082 100%);
   box-shadow: 0 6px 20px rgba(255, 200, 80, 0.5), 0 4px 10px rgba(255, 180, 60, 0.4);
 }
 
 .login-submit:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
+}
+
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Efecto de pulso cuando está cargando */
+.login-submit:disabled::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Animación de entrada del formulario */
+@keyframes formSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-form {
+  animation: formSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Efecto de pulso sutil en el formulario */
+@keyframes formPulse {
+  0%, 100% {
+    box-shadow: 0 20px 60px rgba(255, 220, 100, 0.3), 
+                0 8px 24px rgba(255, 200, 80, 0.2), 
+                0 0 0 2px rgba(255, 220, 100, 0.5), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.6), 
+                0 0 40px rgba(255, 220, 100, 0.3);
+  }
+  50% {
+    box-shadow: 0 25px 70px rgba(255, 220, 100, 0.35), 
+                0 10px 28px rgba(255, 200, 80, 0.25), 
+                0 0 0 3px rgba(255, 220, 100, 0.6), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.7), 
+                0 0 50px rgba(255, 220, 100, 0.4);
+  }
+}
+
+.login-form.form-zoomed {
+  animation: formPulse 2s ease-in-out infinite;
 }
 
 @media (max-width: 480px) {
@@ -519,6 +641,11 @@
     border-radius: 20px;
   }
   
+  .login-form.form-zoomed {
+    transform: scale(1.08);
+    padding: 18px 15px;
+  }
+  
   .login-title {
     font-size: 20px;
     margin: 0 0 6px 0;
@@ -549,8 +676,8 @@
   }
   
   .login-field input {
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 12px 14px;
+    font-size: 16px; /* Evitar zoom automático en iOS */
     border-radius: 12px;
   }
   
@@ -559,9 +686,10 @@
   }
   
   .login-submit {
-    padding: 10px;
-    font-size: 14px;
-    margin-top: 5px;
+    padding: 12px;
+    font-size: 15px;
+    margin-top: 8px;
+    font-weight: 700;
   }
   
   /* Prevenir scroll cuando aparece el teclado */

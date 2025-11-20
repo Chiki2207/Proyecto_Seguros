@@ -17,6 +17,7 @@ function Login() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [formZoomed, setFormZoomed] = useState(false);
   const navigate = useNavigate();
 
   // Función para hacer scroll al campo cuando recibe el foco
@@ -72,10 +73,35 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
+    
+    // Activar zoom del formulario en móviles
+    if (window.innerWidth <= 480) {
+      setFormZoomed(true);
+      // Haptic feedback en dispositivos móviles (si está disponible)
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+      
+      // Hacer scroll al formulario y centrarlo
+      const form = e.target;
+      setTimeout(() => {
+        form.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
+    
     setLoading(true);
 
     try {
       const response = await authAPI.login(usuario, password);
+      
+      // Haptic feedback de éxito
+      if (navigator.vibrate) {
+        navigator.vibrate([50, 30, 50]);
+      }
       
       // Guardar token y datos del usuario
       localStorage.setItem('token', response.token);
@@ -84,9 +110,16 @@ function Login() {
       // Redirigir al dashboard
       navigate('/dashboard');
     } catch (error) {
+      // Haptic feedback de error
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
       setErrorMsg(error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
-    } finally {
       setLoading(false);
+      // Desactivar zoom si hay error después de un tiempo
+      if (window.innerWidth <= 480) {
+        setTimeout(() => setFormZoomed(false), 3000);
+      }
     }
   };
 
@@ -111,7 +144,7 @@ function Login() {
               />
             </div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
+            <form className={`login-form ${formZoomed ? 'form-zoomed' : ''}`} onSubmit={handleSubmit}>
               <h1 className="login-title">Iniciar sesión</h1>
               <p className="login-description">Ingresa tus credenciales</p>
 
