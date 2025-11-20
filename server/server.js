@@ -12,6 +12,7 @@ import pricesRoutes from './routes/prices.js';
 import reportsRoutes from './routes/reports.js';
 import mediaRoutes from './routes/media.js';
 import historyRoutes from './routes/history.js';
+import agendasRoutes from './routes/agendas.js';
 
 dotenv.config();
 
@@ -92,6 +93,7 @@ app.use('/api/clients', pricesRoutes); // /api/clients/:clientId/prices
 app.use('/api/reports', reportsRoutes);
 app.use('/api/reports', mediaRoutes); // /api/reports/:id/media
 app.use('/api/reports', historyRoutes); // /api/reports/:id/history
+app.use('/api/agendas', agendasRoutes);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

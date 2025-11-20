@@ -189,6 +189,14 @@ router.get('/:id', authenticateToken, requireAuth, async (req, res) => {
         },
         {
           $lookup: {
+            from: Collections.REPORT_MEDIA,
+            localField: 'history.mediaId',
+            foreignField: '_id',
+            as: 'historyMedia',
+          },
+        },
+        {
+          $lookup: {
             from: Collections.USERS,
             localField: 'media.uploadedBy',
             foreignField: '_id',
@@ -204,10 +212,39 @@ router.get('/:id', authenticateToken, requireAuth, async (req, res) => {
           },
         },
         {
+          $unwind: {
+            path: '$client',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$createdByUser',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: Collections.USERS,
+            localField: 'history.userId',
+            foreignField: '_id',
+            as: 'historyUsers',
+          },
+        },
+        {
+          $lookup: {
+            from: Collections.USERS,
+            localField: 'media.uploadedBy',
+            foreignField: '_id',
+            as: 'mediaUploaders',
+          },
+        },
+        {
           $project: {
             'client.passwordHash': 0,
             'createdByUser.passwordHash': 0,
             'technicians.passwordHash': 0,
+            'historyUsers.passwordHash': 0,
           },
         },
       ])
@@ -221,8 +258,74 @@ router.get('/:id', authenticateToken, requireAuth, async (req, res) => {
     reportData.client = reportData.client[0] || null;
     reportData.createdByUser = reportData.createdByUser[0] || null;
 
-    // Ordenar historial por fecha
+    // Obtener todos los IDs de usuarios únicos del historial y media
+    const userIds = new Set();
+    reportData.history?.forEach((entry) => {
+      if (entry.userId) userIds.add(entry.userId.toString());
+    });
+    reportData.media?.forEach((media) => {
+      if (media.uploadedBy) userIds.add(media.uploadedBy.toString());
+    });
+
+    // Obtener información de usuarios
+    const usersCollection = db.collection(Collections.USERS);
+    const users = await usersCollection
+      .find({ _id: { $in: Array.from(userIds).map((id) => new ObjectId(id)) } })
+      .toArray();
+
+    const usersMap = {};
+    users.forEach((user) => {
+      usersMap[user._id.toString()] = {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        role: user.role,
+      };
+    });
+
+    // Obtener IDs de media asociados al historial
+    const mediaIdsFromHistory = new Set();
+    reportData.history?.forEach((entry) => {
+      if (entry.mediaId) {
+        mediaIdsFromHistory.add(entry.mediaId.toString());
+      }
+    });
+
+    // Obtener media asociados al historial
+    const mediaCollection = db.collection(Collections.REPORT_MEDIA);
+    const historyMedia = mediaIdsFromHistory.size > 0
+      ? await mediaCollection
+          .find({ _id: { $in: Array.from(mediaIdsFromHistory).map((id) => new ObjectId(id)) } })
+          .toArray()
+      : [];
+
+    // Crear mapa de media por ID
+    const mediaMap = {};
+    reportData.media?.forEach((m) => {
+      mediaMap[m._id.toString()] = m;
+    });
+    historyMedia.forEach((m) => {
+      mediaMap[m._id.toString()] = m;
+    });
+
+    // Agregar información del usuario y media asociado a cada entrada del historial
+    reportData.history = reportData.history.map((entry) => ({
+      ...entry,
+      user: usersMap[entry.userId?.toString()] || null,
+      associatedMedia: entry.mediaId ? mediaMap[entry.mediaId?.toString()] || null : null,
+    }));
+
+    // Agregar información del usuario a cada media
+    reportData.media = reportData.media.map((media) => ({
+      ...media,
+      uploadedByUser: usersMap[media.uploadedBy?.toString()] || null,
+    }));
+
+    // Ordenar historial por fecha (más reciente primero)
     reportData.history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // Ordenar media por fecha (más reciente primero)
+    reportData.media.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     res.json(reportData);
   } catch (error) {
@@ -258,6 +361,16 @@ router.patch('/:id', authenticateToken, requireAuth, async (req, res) => {
 
     if (!currentReport) {
       return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+
+    // Si es TECNICO, verificar que esté asignado al reporte
+    if (req.user.role === 'TECNICO') {
+      const isAssigned = currentReport.technicianIds?.some(
+        (techId) => techId.toString() === req.user.userId
+      );
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'No tienes permiso para modificar este reporte' });
+      }
     }
 
     // Construir objeto de actualización

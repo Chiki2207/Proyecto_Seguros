@@ -85,16 +85,17 @@ function AudioRecorder({ reportId, onUploadSuccess }) {
     const formData = new FormData();
     formData.append('file', recordedBlob, 'audio.webm');
     formData.append('type', 'AUDIO');
+    formData.append('skipHistory', 'true'); // El historial se creará desde el formulario unificado
 
     try {
-      await mediaAPI.upload(reportId, formData);
+      const result = await mediaAPI.upload(reportId, formData);
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
       }
       setRecordedBlob(null);
       setAudioUrl(null);
       setRecordingTime(0);
-      onUploadSuccess?.();
+      onUploadSuccess?.(result);
     } catch (error) {
       console.error('Error subiendo audio:', error);
     } finally {

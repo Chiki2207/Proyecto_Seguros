@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, CircularProgress, Paper } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, CircularProgress, Paper, keyframes } from '@mui/material';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PendingIcon from '@mui/icons-material/Pending';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { reportsAPI } from '../../services/api';
+
+const shimmer = keyframes`
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+`;
 
 function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -54,11 +59,24 @@ function Dashboard() {
       <Paper
         sx={{
           p: { xs: 3, sm: 4, md: 5 },
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #FFFDE7 100%)',
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 253, 231, 0.9) 100%)',
+          backdropFilter: 'blur(20px)',
           borderRadius: 4,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          boxShadow: '0 8px 32px rgba(255, 179, 0, 0.15), 0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
           mb: 4,
-          border: '1px solid rgba(255, 214, 0, 0.1)',
+          border: '1px solid rgba(255, 214, 0, 0.2)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: 'linear-gradient(90deg, #FFD600 0%, #FFB300 50%, #F9A825 100%)',
+            borderRadius: '4px 4px 0 0',
+          },
         }}
       >
         <Typography 
@@ -93,11 +111,12 @@ function Dashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF9C4 100%)',
-              border: '1px solid rgba(255, 214, 0, 0.2)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 249, 196, 0.95) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 214, 0, 0.3)',
               borderRadius: 4,
-              boxShadow: '0 4px 16px rgba(255, 214, 0, 0.15)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 6px 24px rgba(255, 214, 0, 0.2), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -107,11 +126,28 @@ function Dashboard() {
                 left: 0,
                 right: 0,
                 height: '5px',
-                background: 'linear-gradient(90deg, #FFB300 0%, #FFD600 100%)',
+                background: 'linear-gradient(90deg, #FFB300 0%, #FFD600 50%, #FFB300 100%)',
+                backgroundSize: '200% 100%',
+                animation: `${shimmer} 3s ease-in-out infinite`,
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'radial-gradient(circle, rgba(255, 214, 0, 0.1) 0%, transparent 70%)',
+                opacity: 0,
+                transition: 'opacity 0.4s ease',
               },
               '&:hover': {
-                transform: 'translateY(-6px) scale(1.02)',
-                boxShadow: '0 8px 24px rgba(255, 214, 0, 0.25)',
+                transform: 'translateY(-8px) scale(1.03)',
+                boxShadow: '0 12px 32px rgba(255, 214, 0, 0.3), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+                borderColor: 'rgba(255, 214, 0, 0.5)',
+                '&::after': {
+                  opacity: 1,
+                },
               },
             }}
           >
@@ -152,11 +188,12 @@ function Dashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF3E0 100%)',
-              border: '1px solid rgba(251, 140, 0, 0.2)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 243, 224, 0.95) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(251, 140, 0, 0.3)',
               borderRadius: 4,
-              boxShadow: '0 4px 16px rgba(251, 140, 0, 0.15)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 6px 24px rgba(251, 140, 0, 0.2), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -166,11 +203,28 @@ function Dashboard() {
                 left: 0,
                 right: 0,
                 height: '5px',
-                background: 'linear-gradient(90deg, #FB8C00 0%, #FFA726 100%)',
+                background: 'linear-gradient(90deg, #FB8C00 0%, #FFA726 50%, #FB8C00 100%)',
+                backgroundSize: '200% 100%',
+                animation: `${shimmer} 3s ease-in-out infinite`,
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'radial-gradient(circle, rgba(251, 140, 0, 0.1) 0%, transparent 70%)',
+                opacity: 0,
+                transition: 'opacity 0.4s ease',
               },
               '&:hover': {
-                transform: 'translateY(-6px) scale(1.02)',
-                boxShadow: '0 8px 24px rgba(251, 140, 0, 0.25)',
+                transform: 'translateY(-8px) scale(1.03)',
+                boxShadow: '0 12px 32px rgba(251, 140, 0, 0.3), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+                borderColor: 'rgba(251, 140, 0, 0.5)',
+                '&::after': {
+                  opacity: 1,
+                },
               },
             }}
           >
@@ -211,11 +265,12 @@ function Dashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #E0F7FA 100%)',
-              border: '1px solid rgba(0, 191, 165, 0.2)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(224, 247, 250, 0.95) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(0, 191, 165, 0.3)',
               borderRadius: 4,
-              boxShadow: '0 4px 16px rgba(0, 191, 165, 0.15)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 6px 24px rgba(0, 191, 165, 0.2), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -225,11 +280,28 @@ function Dashboard() {
                 left: 0,
                 right: 0,
                 height: '5px',
-                background: 'linear-gradient(90deg, #00BFA5 0%, #26A69A 100%)',
+                background: 'linear-gradient(90deg, #00BFA5 0%, #26A69A 50%, #00BFA5 100%)',
+                backgroundSize: '200% 100%',
+                animation: `${shimmer} 3s ease-in-out infinite`,
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'radial-gradient(circle, rgba(0, 191, 165, 0.1) 0%, transparent 70%)',
+                opacity: 0,
+                transition: 'opacity 0.4s ease',
               },
               '&:hover': {
-                transform: 'translateY(-6px) scale(1.02)',
-                boxShadow: '0 8px 24px rgba(0, 191, 165, 0.25)',
+                transform: 'translateY(-8px) scale(1.03)',
+                boxShadow: '0 12px 32px rgba(0, 191, 165, 0.3), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+                borderColor: 'rgba(0, 191, 165, 0.5)',
+                '&::after': {
+                  opacity: 1,
+                },
               },
             }}
           >
@@ -270,11 +342,12 @@ function Dashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #E8F5E9 100%)',
-              border: '1px solid rgba(67, 160, 71, 0.2)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 245, 233, 0.95) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(67, 160, 71, 0.3)',
               borderRadius: 4,
-              boxShadow: '0 4px 16px rgba(67, 160, 71, 0.15)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 6px 24px rgba(67, 160, 71, 0.2), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -284,11 +357,28 @@ function Dashboard() {
                 left: 0,
                 right: 0,
                 height: '5px',
-                background: 'linear-gradient(90deg, #43A047 0%, #66BB6A 100%)',
+                background: 'linear-gradient(90deg, #43A047 0%, #66BB6A 50%, #43A047 100%)',
+                backgroundSize: '200% 100%',
+                animation: `${shimmer} 3s ease-in-out infinite`,
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'radial-gradient(circle, rgba(67, 160, 71, 0.1) 0%, transparent 70%)',
+                opacity: 0,
+                transition: 'opacity 0.4s ease',
               },
               '&:hover': {
-                transform: 'translateY(-6px) scale(1.02)',
-                boxShadow: '0 8px 24px rgba(67, 160, 71, 0.25)',
+                transform: 'translateY(-8px) scale(1.03)',
+                boxShadow: '0 12px 32px rgba(67, 160, 71, 0.3), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+                borderColor: 'rgba(67, 160, 71, 0.5)',
+                '&::after': {
+                  opacity: 1,
+                },
               },
             }}
           >

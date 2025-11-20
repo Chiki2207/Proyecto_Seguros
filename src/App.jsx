@@ -9,6 +9,7 @@ import UsersList from "./pages/Users/UsersList";
 import ClientsList from "./pages/Clients/ClientsList";
 import ServicesList from "./pages/Services/ServicesList";
 import PriceListsList from "./pages/PriceLists/PriceListsList";
+import AgendasList from "./pages/Agendas/AgendasList";
 import Profile from "./pages/Profile/Profile";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Layout from "./components/Layout/Layout";
@@ -113,6 +114,17 @@ export default function App() {
           <ProtectedRoute>
             <Layout>
               <PriceListsList />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/agendas"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AgendasList />
             </Layout>
           </ProtectedRoute>
         }

@@ -176,15 +176,54 @@ export const mediaAPI = {
 
     return response.json();
   },
-};
-
-// ==================== HISTORIAL ====================
-export const historyAPI = {
-  create: async (reportId, historyData) => {
-    return fetchAPI(`/reports/${reportId}/history`, {
-      method: 'POST',
-      body: JSON.stringify(historyData),
+  delete: async (reportId, mediaId) => {
+    return fetchAPI(`/reports/${reportId}/media/${mediaId}`, {
+      method: 'DELETE',
     });
   },
 };
+
+  // ==================== HISTORIAL ====================
+  export const historyAPI = {
+    create: async (reportId, historyData) => {
+      return fetchAPI(`/reports/${reportId}/history`, {
+        method: 'POST',
+        body: JSON.stringify(historyData),
+      });
+    },
+    update: async (reportId, historyId, updateData) => {
+      return fetchAPI(`/reports/${reportId}/history/${historyId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateData),
+      });
+    },
+  };
+
+  // ==================== AGENDAS ====================
+  export const agendasAPI = {
+    getAll: async (filters = {}) => {
+      const queryParams = new URLSearchParams(filters).toString();
+      return fetchAPI(`/agendas${queryParams ? `?${queryParams}` : ''}`);
+    },
+    getById: async (id) => {
+      return fetchAPI(`/agendas/${id}`);
+    },
+    create: async (agendaData) => {
+      return fetchAPI('/agendas', {
+        method: 'POST',
+        body: JSON.stringify(agendaData),
+      });
+    },
+    update: async (id, updateData) => {
+      return fetchAPI(`/agendas/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateData),
+      });
+    },
+    remove: async (id) => {
+      return fetchAPI(`/agendas/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  };
 

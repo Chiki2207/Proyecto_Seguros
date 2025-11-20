@@ -44,6 +44,7 @@ router.post('/:id/history', authenticateToken, requireAuth, async (req, res) => 
 
     if (oldStatus) newHistory.oldStatus = oldStatus;
     if (newStatus) newHistory.newStatus = newStatus;
+    if (req.body.mediaId) newHistory.mediaId = new ObjectId(req.body.mediaId);
 
     const result = await historyCollection.insertOne(newHistory);
 
@@ -54,6 +55,63 @@ router.post('/:id/history', authenticateToken, requireAuth, async (req, res) => 
     });
   } catch (error) {
     console.error('Error agregando historial:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+/**
+ * PATCH /api/reports/:id/history/:historyId
+ * Actualizar entrada del historial (solo el usuario que la creó)
+ * Body: { comment }
+ */
+router.patch('/:id/history/:historyId', authenticateToken, requireAuth, async (req, res) => {
+  try {
+    const { id, historyId } = req.params;
+    const { comment } = req.body;
+
+    if (!comment || !comment.trim()) {
+      return res.status(400).json({ error: 'comment es requerido' });
+    }
+
+    const db = getDB();
+    const reportsCollection = db.collection(Collections.REPORTS);
+    const historyCollection = db.collection(Collections.REPORT_HISTORY);
+
+    // Verificar que el reporte existe
+    const report = await reportsCollection.findOne({ _id: new ObjectId(id) });
+    if (!report) {
+      return res.status(404).json({ error: 'Reporte no encontrado' });
+    }
+
+    // Verificar que la entrada del historial existe y pertenece al usuario actual
+    const historyEntry = await historyCollection.findOne({ _id: new ObjectId(historyId) });
+    if (!historyEntry) {
+      return res.status(404).json({ error: 'Entrada de historial no encontrada' });
+    }
+
+    if (historyEntry.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ error: 'Solo puedes editar tus propias entradas' });
+    }
+
+    // Solo se pueden editar entradas de tipo ACTUALIZACION_TECNICO
+    if (historyEntry.type !== 'ACTUALIZACION_TECNICO') {
+      return res.status(400).json({ error: 'Solo se pueden editar actualizaciones de técnico' });
+    }
+
+    // Actualizar el comentario
+    await historyCollection.updateOne(
+      { _id: new ObjectId(historyId) },
+      { $set: { comment: comment.trim() } }
+    );
+
+    const updatedEntry = await historyCollection.findOne({ _id: new ObjectId(historyId) });
+
+    res.json({
+      message: 'Entrada de historial actualizada exitosamente',
+      history: updatedEntry,
+    });
+  } catch (error) {
+    console.error('Error actualizando historial:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

@@ -98,6 +98,17 @@
  * @property {string} [oldStatus]
  * @property {string} [newStatus]
  * @property {string} comment
+ * @property {import('mongodb').ObjectId} [mediaId] - Referencia al media asociado (si aplica)
+ */
+
+/**
+ * @typedef {Object} Agenda
+ * @property {Date} fechaHora - Fecha y hora de la agenda
+ * @property {string} titulo - Título de la agenda
+ * @property {string} descripcion - Descripción detallada
+ * @property {import('mongodb').ObjectId} createdBy - Usuario que creó la agenda
+ * @property {Date} createdAt
+ * @property {Date} updatedAt
  */
 
 export const Collections = {
@@ -108,5 +119,6 @@ export const Collections = {
   REPORTS: 'reports',
   REPORT_MEDIA: 'reportMedia',
   REPORT_HISTORY: 'reportHistory',
+  AGENDAS: 'agendas',
 };
 

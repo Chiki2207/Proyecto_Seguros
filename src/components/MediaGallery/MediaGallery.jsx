@@ -195,9 +195,11 @@ function MediaGallery({ reportId, media = [], onRefresh }) {
         {/* FOTOS */}
         {selectedTab === 0 && (
           <Box>
-            <Box sx={{ mb: 3 }}>
-              <PhotoCapture reportId={reportId} onUploadSuccess={onRefresh} />
-            </Box>
+            {!isAdmin && (
+              <Box sx={{ mb: 3 }}>
+                <PhotoCapture reportId={reportId} onUploadSuccess={onRefresh} />
+              </Box>
+            )}
             {photos.length === 0 ? (
               <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
                 No hay fotos registradas
@@ -288,9 +290,11 @@ function MediaGallery({ reportId, media = [], onRefresh }) {
         {/* VIDEOS */}
         {selectedTab === 1 && (
           <Box>
-            <Box sx={{ mb: 3 }}>
-              <VideoCapture reportId={reportId} onUploadSuccess={onRefresh} />
-            </Box>
+            {!isAdmin && (
+              <Box sx={{ mb: 3 }}>
+                <VideoCapture reportId={reportId} onUploadSuccess={onRefresh} />
+              </Box>
+            )}
             {videos.length === 0 ? (
               <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
                 No hay videos registrados
@@ -377,9 +381,11 @@ function MediaGallery({ reportId, media = [], onRefresh }) {
         {/* AUDIOS */}
         {selectedTab === 2 && (
           <Box>
-            <Box sx={{ mb: 3 }}>
-              <AudioRecorder reportId={reportId} onUploadSuccess={onRefresh} />
-            </Box>
+            {!isAdmin && (
+              <Box sx={{ mb: 3 }}>
+                <AudioRecorder reportId={reportId} onUploadSuccess={onRefresh} />
+              </Box>
+            )}
             {audios.length === 0 ? (
               <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
                 No hay audios registrados

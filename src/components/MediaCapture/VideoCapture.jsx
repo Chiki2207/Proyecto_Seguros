@@ -28,9 +28,10 @@ function VideoCapture({ reportId, onUploadSuccess }) {
     const formData = new FormData();
     formData.append('file', preview.file);
     formData.append('type', 'VIDEO');
+    formData.append('skipHistory', 'true'); // El historial se creará desde el formulario unificado
 
     try {
-      await mediaAPI.upload(reportId, formData);
+      const result = await mediaAPI.upload(reportId, formData);
       if (preview.url) {
         URL.revokeObjectURL(preview.url);
       }
@@ -38,7 +39,7 @@ function VideoCapture({ reportId, onUploadSuccess }) {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      onUploadSuccess?.();
+      onUploadSuccess?.(result);
     } catch (error) {
       console.error('Error subiendo video:', error);
     } finally {
