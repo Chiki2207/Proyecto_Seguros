@@ -1,0 +1,273 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
+  Chip,
+  Autocomplete,
+  Alert,
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { reportsAPI, clientsAPI, usersAPI } from '../../services/api';
+
+function CreateReport() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [clients, setClients] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
+  const [formData, setFormData] = useState({
+    clientId: '',
+    technicianIds: [],
+    diagnosticoInicial: '',
+    causa: '',
+    acciones: '',
+  });
+
+  useEffect(() => {
+    loadClients();
+    loadTechnicians();
+  }, []);
+
+  const loadClients = async () => {
+    try {
+      const data = await clientsAPI.getAll();
+      setClients(data);
+    } catch (error) {
+      console.error('Error cargando clientes:', error);
+    }
+  };
+
+  const loadTechnicians = async () => {
+    try {
+      const allUsers = await usersAPI.getAll();
+      const techs = allUsers.filter((u) => u.role === 'TECNICO' && u.active);
+      setTechnicians(techs);
+    } catch (error) {
+      console.error('Error cargando técnicos:', error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!formData.clientId) {
+      setError('Debes seleccionar un cliente');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await reportsAPI.create({
+        clientId: formData.clientId,
+        technicianIds: formData.technicianIds,
+        diagnosticoInicial: formData.diagnosticoInicial,
+        causa: formData.causa,
+        acciones: formData.acciones,
+      });
+
+      navigate(`/reports/${result.reportId}`);
+    } catch (error) {
+      setError(error.message || 'Error al crear el reporte');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/reports')}
+        sx={{ mb: 2, color: '#FFB300' }}
+      >
+        Volver
+      </Button>
+
+      <Paper
+        sx={{
+          p: { xs: 3, sm: 4 },
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FFFDE7 100%)',
+          borderRadius: 4,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          border: '1px solid rgba(255, 214, 0, 0.1)',
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontSize: { xs: '1.75rem', sm: '2rem' },
+            mb: 3,
+          }}
+        >
+          Crear Nuevo Reporte
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
+
+        <Box component="form" onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Cliente</InputLabel>
+                <Select
+                  name="clientId"
+                  value={formData.clientId}
+                  onChange={handleChange}
+                  label="Cliente"
+                >
+                  {clients.map((client) => (
+                    <MenuItem key={client._id} value={client._id}>
+                      {client.name} ({client.type})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Autocomplete
+                multiple
+                options={technicians}
+                getOptionLabel={(option) => option.fullName}
+                value={technicians.filter((t) => formData.technicianIds.includes(t._id))}
+                onChange={(e, newValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    technicianIds: newValue.map((t) => t._id),
+                  }));
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Técnicos Asignados" />
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option._id}
+                      label={option.fullName}
+                      size="small"
+                    />
+                  ))
+                }
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Diagnóstico Inicial"
+                name="diagnosticoInicial"
+                value={formData.diagnosticoInicial}
+                onChange={handleChange}
+                placeholder="Describe el diagnóstico inicial del problema..."
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Causa"
+                name="causa"
+                value={formData.causa}
+                onChange={handleChange}
+                placeholder="Describe la causa del problema..."
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Acciones"
+                name="acciones"
+                value={formData.acciones}
+                onChange={handleChange}
+                placeholder="Describe las acciones realizadas..."
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
+                <Button
+                  onClick={() => navigate('/reports')}
+                  disabled={loading}
+                  sx={{ color: '#555' }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  disabled={loading}
+                  sx={{
+                    background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
+                    color: '#000',
+                    fontWeight: 700,
+                    px: 3,
+                    py: 1.5,
+                    borderRadius: 2,
+                    boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    '&:hover': { 
+                      background: 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
+                      boxShadow: '0 6px 16px rgba(255, 214, 0, 0.4)',
+                      transform: 'translateY(-2px)',
+                    },
+                    '&:disabled': {
+                      background: '#E0E0E0',
+                      color: '#9E9E9E',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  {loading ? 'Creando...' : 'Crear Reporte'}
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Box>
+  );
+}
+
+export default CreateReport;
+

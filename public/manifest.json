@@ -1,0 +1,36 @@
+{
+  "name": "Proyecto Seguro",
+  "short_name": "Seguro",
+  "description": "Sistema de seguros y asistencias para el hogar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffef0",
+  "theme_color": "#ffc107",
+  "icons": [
+    {
+      "src": "/logo_celular.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo_celular.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo_celular.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo_celular.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
