@@ -19,21 +19,55 @@ function Login() {
   const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
 
-  // Efecto para agregar/quitar clase al body cuando un input está enfocado
-  useEffect(() => {
-    if (inputFocused && window.innerWidth <= 480) {
-      document.body.classList.add('login-input-focused');
-      document.documentElement.classList.add('login-input-focused');
-    } else {
-      document.body.classList.remove('login-input-focused');
-      document.documentElement.classList.remove('login-input-focused');
-    }
+  // Función para hacer scroll al campo cuando recibe el foco
+  const handleInputFocus = (e, setFocused) => {
+    setFocused(true);
     
-    return () => {
+    if (window.innerWidth <= 480) {
+      const input = e.target;
+      
+      // Primero, asegurar que el input esté visible usando scrollIntoView
+      // Usar 'instant' para que sea más rápido y confiable
+      input.scrollIntoView({ 
+        behavior: 'instant', 
+        block: 'center',
+        inline: 'nearest'
+      });
+      
+      // Usar requestAnimationFrame para asegurar que el scroll se complete
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Verificar que el input esté visible antes de bloquear scroll
+          const rect = input.getBoundingClientRect();
+          const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+          
+          // Si no está completamente visible, hacer otro scroll
+          if (!isVisible) {
+            input.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+          
+          // Bloquear scroll después de asegurar que el campo esté visible
+          setTimeout(() => {
+            document.body.classList.add('login-input-focused');
+            document.documentElement.classList.add('login-input-focused');
+          }, 300);
+        });
+      });
+    }
+  };
+
+  const handleInputBlur = (setFocused) => {
+    setFocused(false);
+    // Remover clases con un pequeño delay para evitar parpadeos
+    setTimeout(() => {
       document.body.classList.remove('login-input-focused');
       document.documentElement.classList.remove('login-input-focused');
-    };
-  }, [inputFocused]);
+    }, 150);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,8 +123,8 @@ function Login() {
                   type="text"
                   value={usuario}
                   onChange={(e) => setUsuario(e.target.value)}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
+                  onFocus={(e) => handleInputFocus(e, setInputFocused)}
+                  onBlur={() => handleInputBlur(setInputFocused)}
                   placeholder="Ingresa tu usuario"
                   required
                 />
@@ -105,8 +139,8 @@ function Login() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setInputFocused(true)}
-                    onBlur={() => setInputFocused(false)}
+                    onFocus={(e) => handleInputFocus(e, setInputFocused)}
+                    onBlur={() => handleInputBlur(setInputFocused)}
                     placeholder="••••••••"
                     required
                   />
