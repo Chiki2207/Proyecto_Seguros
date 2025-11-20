@@ -7,6 +7,8 @@
 
 .login-header {
   height: 10vh;
+  min-height: 50px;
+  max-height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -98,6 +100,20 @@
   padding-top: 5vh;
   overflow: visible;
   position: relative;
+}
+
+/* Ajustes para pantallas muy pequeñas (iPhone 6/7) */
+@media (max-width: 375px) {
+  .login-main {
+    padding-top: 2vh;
+    padding-bottom: 10px;
+  }
+  
+  .login-header {
+    height: 8vh;
+    min-height: 45px;
+    max-height: 55px;
+  }
 }
 
 
@@ -295,6 +311,22 @@
   transform: translateY(-3px) scale(1.02);
 }
 
+/* Prevenir scroll automático cuando se enfoca un input en móviles */
+.login-field input:focus {
+  scroll-margin-top: 20px;
+}
+
+/* Ajustes para iOS cuando aparece el teclado */
+@supports (-webkit-touch-callout: none) {
+  .login-container {
+    min-height: -webkit-fill-available;
+  }
+  
+  .login-main {
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+  }
+}
+
 .login-field input::placeholder {
   color: #999;
 }
@@ -396,6 +428,7 @@
 @media (max-width: 480px) {
   .login-main {
     padding: 8px;
+    padding-top: 3vh;
   }
   .login-form {
     padding: 18px 15px;
@@ -408,7 +441,8 @@
     max-width: 120px;
   }
   .login-logo-section {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    padding: 5px;
   }
   .login-field {
     margin-bottom: 10px;
@@ -420,6 +454,75 @@
   .login-submit {
     padding: 10px;
     font-size: 14px;
+  }
+}
+
+/* Ajustes específicos para pantallas muy pequeñas (iPhone 6/7) */
+@media (max-width: 375px) {
+  .login-main {
+    padding: 5px;
+    padding-top: 2vh;
+    padding-bottom: 10px;
+  }
+  
+  .login-content {
+    width: 95%;
+  }
+  
+  .login-form {
+    padding: 15px 12px;
+    border-radius: 20px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+    margin: 0 0 6px 0;
+  }
+  
+  .login-description {
+    font-size: 13px;
+    margin: 0 0 15px 0;
+  }
+  
+  .login-logo-image {
+    width: 50%;
+    max-width: 100px;
+  }
+  
+  .login-logo-section {
+    margin-bottom: 5px;
+    padding: 3px;
+  }
+  
+  .login-field {
+    margin-bottom: 8px;
+  }
+  
+  .login-field-label {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  
+  .login-field input {
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+  
+  .login-field input:focus {
+    transform: translateY(-2px) scale(1.01);
+  }
+  
+  .login-submit {
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  /* Prevenir scroll cuando aparece el teclado */
+  .login-field input:focus {
+    scroll-margin-top: 10px;
+    scroll-margin-bottom: 10px;
   }
 }
 

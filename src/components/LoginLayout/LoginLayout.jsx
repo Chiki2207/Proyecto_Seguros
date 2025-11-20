@@ -52,16 +52,26 @@ const LoginLayout = ({ children }) => {
     <Box
       sx={{
         minHeight: "100vh",
+        height: "100vh",
+        maxHeight: "100vh",
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
         position: "relative",
         overflow: "hidden",
-        padding: { xs: 2, md: 4 },
+        overflowY: "auto",
+        padding: { xs: 1, sm: 2, md: 4 },
+        paddingTop: { xs: 0, sm: 1, md: 2 },
         background: `
           radial-gradient(circle at 10% 20%, rgba(255, 235, 59, 0.08) 0%, transparent 50%),
           linear-gradient(135deg, #fffef0 0%, #fffae6 30%, #fff8dc 60%, #fff5d6 100%)
         `,
+        // Prevenir scroll automático cuando aparece el teclado en iOS
+        WebkitOverflowScrolling: "touch",
+        // Ajustar para que el contenido se mantenga visible cuando aparece el teclado
+        "@supports (-webkit-touch-callout: none)": {
+          minHeight: "-webkit-fill-available",
+        },
       }}
     >
       {/* Tarjeta rectangular grande izquierda (Póliza principal) */}
