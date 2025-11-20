@@ -384,14 +384,58 @@ function ReportsList() {
                 {/* Filtro de estado siempre visible */}
                 <Grid item xs={12} sm={6} md={3}>
                   <FormControl fullWidth>
-                    <InputLabel sx={{ fontWeight: 600, color: '#666' }}>Estado</InputLabel>
+                    <InputLabel 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: '#666', 
+                        fontSize: '1rem',
+                        '&.Mui-focused': {
+                          color: '#FFB300',
+                        },
+                      }}
+                      shrink
+                    >
+                      Estado
+                    </InputLabel>
                     <Select
-                      value={filters.estado}
+                      value={filters.estado || ''}
                       onChange={(e) => handleFilterChange('estado', e.target.value)}
                       label="Estado"
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected === '') {
+                          return (
+                            <Box component="span" sx={{ color: '#999', fontSize: '1rem', fontWeight: 500 }}>
+                              Todos los estados
+                            </Box>
+                          );
+                        }
+                        return (
+                          <Box component="span" sx={{ color: '#333', fontSize: '1rem', fontWeight: 500 }}>
+                            {selected === 'PENDIENTE' ? 'Pendiente' : 'Terminado'}
+                          </Box>
+                        );
+                      }}
                       sx={{
                         borderRadius: 2,
                         bgcolor: '#FFFDE7',
+                        minHeight: '56px',
+                        '& .MuiSelect-select': {
+                          py: 1.5,
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                          display: 'flex',
+                          alignItems: 'center',
+                        },
+                        '& .MuiOutlinedInput-input': {
+                          py: 1.5,
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                        },
+                        '& .MuiNativeSelect-root': {
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                        },
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderColor: 'rgba(255, 214, 0, 0.4)',
                         },
@@ -404,9 +448,15 @@ function ReportsList() {
                         },
                       }}
                     >
-                      <MenuItem value="">Todos los estados</MenuItem>
-                      <MenuItem value="PENDIENTE">Pendiente</MenuItem>
-                      <MenuItem value="TERMINADO">Terminado</MenuItem>
+                      <MenuItem value="" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Todos los estados
+                      </MenuItem>
+                      <MenuItem value="PENDIENTE" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Pendiente
+                      </MenuItem>
+                      <MenuItem value="TERMINADO" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Terminado
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -420,37 +470,24 @@ function ReportsList() {
                         color: '#666',
                         fontSize: '1rem',
                       }}
-                      shrink={filterType !== 'todos'}
                     >
                       Filtrar por
                     </InputLabel>
                     <Select
-                      value={filterType}
+                      value={filterType || 'todos'}
                       onChange={(e) => handleFilterTypeChange(e.target.value)}
                       label="Filtrar por"
-                      displayEmpty
-                      renderValue={(selected) => {
-                        if (selected === 'todos' || !selected) {
-                          return <Box sx={{ color: '#999', fontSize: '1rem' }}>Todos los reportes</Box>;
-                        }
-                        const labels = {
-                          cliente: 'Por Cliente',
-                          tecnico: 'Por Técnico',
-                          intervalo: 'Por Intervalo de Tiempo',
-                          fecha: 'Por Fecha Específica',
-                          id: 'Por ID de Reporte',
-                          cedula: 'Por Número de Cédula',
-                        };
-                        return labels[selected] || selected;
-                      }}
                       sx={{
                         borderRadius: 2,
                         bgcolor: '#FFFDE7',
                         minHeight: '56px',
                         fontSize: '1rem',
+                        fontWeight: 500,
                         '& .MuiSelect-select': {
                           py: 1.5,
                           fontSize: '1rem',
+                          fontWeight: 500,
+                          color: filterType && filterType !== 'todos' ? '#333' : '#999',
                         },
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderColor: 'rgba(255, 214, 0, 0.4)',
@@ -464,99 +501,121 @@ function ReportsList() {
                         },
                       }}
                     >
-                      <MenuItem value="todos">
-                        <Box sx={{ fontSize: '1rem', fontWeight: 500 }}>Todos los reportes</Box>
+                      <MenuItem value="todos" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Todos los reportes
                       </MenuItem>
-                      <MenuItem value="cliente">
-                        <Box sx={{ fontSize: '1rem' }}>Por Cliente</Box>
+                      <MenuItem value="cliente" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Cliente
                       </MenuItem>
-                      <MenuItem value="tecnico">
-                        <Box sx={{ fontSize: '1rem' }}>Por Técnico</Box>
+                      <MenuItem value="tecnico" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Técnico
                       </MenuItem>
-                      <MenuItem value="intervalo">
-                        <Box sx={{ fontSize: '1rem' }}>Por Intervalo de Tiempo</Box>
+                      <MenuItem value="intervalo" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Intervalo de Tiempo
                       </MenuItem>
-                      <MenuItem value="fecha">
-                        <Box sx={{ fontSize: '1rem' }}>Por Fecha Específica</Box>
+                      <MenuItem value="fecha" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Fecha Específica
                       </MenuItem>
-                      <MenuItem value="id">
-                        <Box sx={{ fontSize: '1rem' }}>Por ID de Reporte</Box>
+                      <MenuItem value="id" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por ID de Reporte
                       </MenuItem>
-                      <MenuItem value="cedula">
-                        <Box sx={{ fontSize: '1rem' }}>Por Número de Cédula</Box>
+                      <MenuItem value="cedula" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Número de Cédula
                       </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
 
                 {/* Campos dinámicos según el tipo de filtro seleccionado */}
-                {filterType === 'cliente' && (
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ fontWeight: 600, color: '#666' }}>Seleccionar Cliente</InputLabel>
-                      <Select
-                        value={filters.clientId}
-                        onChange={(e) => handleFilterChange('clientId', e.target.value)}
-                        label="Seleccionar Cliente"
-                        sx={{
-                          borderRadius: 2,
-                          bgcolor: '#FFFDE7',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 214, 0, 0.4)',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 214, 0, 0.6)',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#FFB300',
-                            borderWidth: 2,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">Seleccione un cliente</MenuItem>
-                        {clients.map((client) => (
-                          <MenuItem key={client._id} value={client._id}>
-                            {client.name}
+                  {filterType === 'cliente' && (
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel sx={{ fontWeight: 600, color: '#666', fontSize: '1rem' }}>Seleccionar Cliente</InputLabel>
+                        <Select
+                          value={filters.clientId}
+                          onChange={(e) => handleFilterChange('clientId', e.target.value)}
+                          label="Seleccionar Cliente"
+                          sx={{
+                            borderRadius: 2,
+                            bgcolor: '#FFFDE7',
+                            minHeight: '56px',
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                            '& .MuiSelect-select': {
+                              py: 1.5,
+                              fontSize: '1rem',
+                              fontWeight: 500,
+                              color: filters.clientId ? '#333' : '#999',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 214, 0, 0.4)',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 214, 0, 0.6)',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#FFB300',
+                              borderWidth: 2,
+                            },
+                          }}
+                        >
+                          <MenuItem value="" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                            Seleccione un cliente
                           </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                )}
+                          {clients.map((client) => (
+                            <MenuItem key={client._id} value={client._id} sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                              {client.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
 
-                {filterType === 'tecnico' && (
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ fontWeight: 600, color: '#666' }}>Seleccionar Técnico</InputLabel>
-                      <Select
-                        value={filters.technicianId}
-                        onChange={(e) => handleFilterChange('technicianId', e.target.value)}
-                        label="Seleccionar Técnico"
-                        sx={{
-                          borderRadius: 2,
-                          bgcolor: '#FFFDE7',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 214, 0, 0.4)',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 214, 0, 0.6)',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#FFB300',
-                            borderWidth: 2,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">Seleccione un técnico</MenuItem>
-                        {technicians.map((tech) => (
-                          <MenuItem key={tech._id} value={tech._id}>
-                            {tech.fullName} - {tech.documentNumber}
+                  {filterType === 'tecnico' && (
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel sx={{ fontWeight: 600, color: '#666', fontSize: '1rem' }}>Seleccionar Técnico</InputLabel>
+                        <Select
+                          value={filters.technicianId}
+                          onChange={(e) => handleFilterChange('technicianId', e.target.value)}
+                          label="Seleccionar Técnico"
+                          sx={{
+                            borderRadius: 2,
+                            bgcolor: '#FFFDE7',
+                            minHeight: '56px',
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                            '& .MuiSelect-select': {
+                              py: 1.5,
+                              fontSize: '1rem',
+                              fontWeight: 500,
+                              color: filters.technicianId ? '#333' : '#999',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 214, 0, 0.4)',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 214, 0, 0.6)',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#FFB300',
+                              borderWidth: 2,
+                            },
+                          }}
+                        >
+                          <MenuItem value="" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                            Seleccione un técnico
                           </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                )}
+                          {technicians.map((tech) => (
+                            <MenuItem key={tech._id} value={tech._id} sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                              {tech.fullName} - {tech.documentNumber}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
 
                 {filterType === 'intervalo' && (
                   <>
