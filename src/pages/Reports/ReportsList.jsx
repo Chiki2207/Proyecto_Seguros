@@ -119,17 +119,29 @@ function ReportsList() {
     } else if (filterType === 'intervalo') {
       // Filtro por intervalo de fechas
       if (filters.fechaDesde) {
-        const fechaInput = new Date(filters.fechaDesde);
-        const fechaDesde = new Date(fechaInput.getFullYear(), fechaInput.getMonth(), fechaInput.getDate(), 0, 0, 0, 0);
+        // Parsear la fecha de entrada (formato YYYY-MM-DD)
+        const fechaParts = filters.fechaDesde.split('-');
+        const año = parseInt(fechaParts[0], 10);
+        const mes = parseInt(fechaParts[1], 10) - 1; // Los meses en JS son 0-indexed
+        const dia = parseInt(fechaParts[2], 10);
+        const fechaDesde = new Date(año, mes, dia, 0, 0, 0, 0);
+        
         filtered = filtered.filter((r) => {
+          if (!r.createdAt) return false;
           const reportDate = new Date(r.createdAt);
           return reportDate >= fechaDesde;
         });
       }
       if (filters.fechaHasta) {
-        const fechaInput = new Date(filters.fechaHasta);
-        const fechaHasta = new Date(fechaInput.getFullYear(), fechaInput.getMonth(), fechaInput.getDate(), 23, 59, 59, 999);
+        // Parsear la fecha de entrada (formato YYYY-MM-DD)
+        const fechaParts = filters.fechaHasta.split('-');
+        const año = parseInt(fechaParts[0], 10);
+        const mes = parseInt(fechaParts[1], 10) - 1; // Los meses en JS son 0-indexed
+        const dia = parseInt(fechaParts[2], 10);
+        const fechaHasta = new Date(año, mes, dia, 23, 59, 59, 999);
+        
         filtered = filtered.filter((r) => {
+          if (!r.createdAt) return false;
           const reportDate = new Date(r.createdAt);
           return reportDate <= fechaHasta;
         });
@@ -137,16 +149,26 @@ function ReportsList() {
     } else if (filterType === 'fecha') {
       // Filtro por fecha específica - comparar solo año, mes y día
       if (filters.fechaEspecifica) {
-        const fechaInput = new Date(filters.fechaEspecifica);
-        const año = fechaInput.getFullYear();
-        const mes = fechaInput.getMonth();
-        const dia = fechaInput.getDate();
+        // Parsear la fecha de entrada (formato YYYY-MM-DD)
+        const fechaParts = filters.fechaEspecifica.split('-');
+        const añoInput = parseInt(fechaParts[0], 10);
+        const mesInput = parseInt(fechaParts[1], 10) - 1; // Los meses en JS son 0-indexed
+        const diaInput = parseInt(fechaParts[2], 10);
         
         filtered = filtered.filter((r) => {
+          if (!r.createdAt) return false;
+          
+          // Crear fecha del reporte en hora local
           const reportDate = new Date(r.createdAt);
-          return reportDate.getFullYear() === año &&
-                 reportDate.getMonth() === mes &&
-                 reportDate.getDate() === dia;
+          
+          // Comparar año, mes y día en hora local
+          const añoReporte = reportDate.getFullYear();
+          const mesReporte = reportDate.getMonth();
+          const diaReporte = reportDate.getDate();
+          
+          return añoReporte === añoInput &&
+                 mesReporte === mesInput &&
+                 diaReporte === diaInput;
         });
       }
     } else if (filterType === 'id') {
