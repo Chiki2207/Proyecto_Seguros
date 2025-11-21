@@ -261,8 +261,31 @@ router.get('/:id', authenticateToken, requireAuth, async (req, res) => {
     }
 
     const reportData = report[0];
-    reportData.client = reportData.client[0] || null;
-    reportData.createdByUser = reportData.createdByUser[0] || null;
+    
+    // Después del $unwind, client y createdByUser deberían ser objetos directos o null
+    // Verificar si aún son arrays (no deberían serlo, pero por seguridad)
+    if (Array.isArray(reportData.client)) {
+      reportData.client = reportData.client.length > 0 ? reportData.client[0] : null;
+    }
+    
+    if (Array.isArray(reportData.createdByUser)) {
+      reportData.createdByUser = reportData.createdByUser.length > 0 ? reportData.createdByUser[0] : null;
+    }
+    
+    // Debug logging para diagnosticar problemas
+    console.log('Report data debugging:', {
+      reportId: reportData._id?.toString(),
+      clientId: reportData.clientId?.toString(),
+      hasClient: !!reportData.client,
+      clientType: typeof reportData.client,
+      clientIsArray: Array.isArray(reportData.client),
+      clientName: reportData.client?.name,
+      createdById: reportData.createdBy?.toString(),
+      hasCreatedByUser: !!reportData.createdByUser,
+      createdByUserType: typeof reportData.createdByUser,
+      createdByUserIsArray: Array.isArray(reportData.createdByUser),
+      createdByUserName: reportData.createdByUser?.fullName,
+    });
 
     // Obtener todos los IDs de usuarios únicos del historial y media
     const userIds = new Set();

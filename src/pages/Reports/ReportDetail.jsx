@@ -39,10 +39,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BusinessIcon from '@mui/icons-material/Business';
+import PersonIcon from '@mui/icons-material/Person';
 import { reportsAPI } from '../../services/api';
 import ReportTimeline from '../../components/ReportTimeline/ReportTimeline';
 import UnifiedReportForm from '../../components/UnifiedReportForm/UnifiedReportForm';
 import TechnicianDetailModal from '../../components/TechnicianDetailModal/TechnicianDetailModal';
+import ClientDetailModal from '../../components/ClientDetailModal/ClientDetailModal';
 import { generateReportPDF } from '../../utils/pdfGenerator';
 
 // Animaciones suaves tipo escritura natural
@@ -139,6 +142,7 @@ function ReportDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [technicianModalOpen, setTechnicianModalOpen] = useState(false);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     diagnostico: false,
     causa: false,
@@ -476,6 +480,11 @@ function ReportDetail() {
                   </Box>
                   
                   <Box
+                    onClick={() => {
+                      if (report.client) {
+                        setClientModalOpen(true);
+                      }
+                    }}
                     sx={{
                       p: 2,
                       bgcolor: '#FFF8E1',
@@ -483,25 +492,57 @@ function ReportDetail() {
                       border: '1px solid rgba(255, 214, 0, 0.2)',
                       animation: animationStep >= 1 ? `${writeIn} 0.5s ease-out 1.1s both` : 'none',
                       transition: 'all 0.3s ease',
+                      cursor: report.client ? 'pointer' : 'default',
                       '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
+                        transform: report.client ? 'translateY(-2px)' : 'none',
+                        boxShadow: report.client ? '0 4px 12px rgba(255, 214, 0, 0.3)' : 'none',
+                        bgcolor: report.client ? '#FFF9C4' : '#FFF8E1',
                       },
                     }}
                   >
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1, fontWeight: 600 }}>
                       Cliente
                     </Typography>
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        fontWeight: 600, 
-                        color: '#333',
-                        animation: animationStep >= 1 ? `${gentleFadeIn} 0.6s ease-out 1.3s both` : 'none',
-                      }}
-                    >
-                      {report.client?.name || 'N/A'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Avatar
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          bgcolor: report.client?.type === 'ASEGURADORA' ? '#4CAF50' : '#2196F3',
+                          color: '#FFF',
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1.2s both` : 'none',
+                        }}
+                      >
+                        {report.client?.type === 'ASEGURADORA' ? (
+                          <BusinessIcon sx={{ fontSize: 20 }} />
+                        ) : (
+                          <PersonIcon sx={{ fontSize: 20 }} />
+                        )}
+                      </Avatar>
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          color: '#333',
+                          animation: animationStep >= 1 ? `${gentleFadeIn} 0.6s ease-out 1.3s both` : 'none',
+                          flex: 1,
+                        }}
+                      >
+                        {report.client?.name || 'N/A'}
+                      </Typography>
+                      {report.client && (
+                        <VisibilityIcon 
+                          sx={{ 
+                            color: '#666', 
+                            fontSize: 18,
+                            opacity: 0.7,
+                            animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.4s both` : 'none',
+                          }} 
+                        />
+                      )}
+                    </Box>
                   </Box>
                   
                   <Box
@@ -1500,6 +1541,15 @@ function ReportDetail() {
           setSelectedTechnician(null);
         }}
         technician={selectedTechnician}
+      />
+
+      {/* Modal de Información del Cliente */}
+      <ClientDetailModal
+        open={clientModalOpen}
+        onClose={() => {
+          setClientModalOpen(false);
+        }}
+        client={report?.client || null}
       />
     </Box>
   );
