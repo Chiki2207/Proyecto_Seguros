@@ -160,17 +160,49 @@ function CreateReport() {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth required>
-                <InputLabel sx={{ 
-                  '&.Mui-focused': { color: '#FFB300' },
-                }}>Cliente</InputLabel>
+                <InputLabel 
+                  sx={{ 
+                    fontWeight: 600,
+                    color: '#666',
+                    fontSize: '1rem',
+                    '&.Mui-focused': { color: '#FFB300' },
+                  }}
+                  shrink
+                >
+                  Cliente
+                </InputLabel>
                 <Select
                   name="clientId"
                   value={formData.clientId}
                   onChange={handleChange}
                   label="Cliente"
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected || selected === '') {
+                      return (
+                        <Box component="span" sx={{ color: '#999', fontSize: '1rem', fontWeight: 500 }}>
+                          Seleccione un cliente
+                        </Box>
+                      );
+                    }
+                    const selectedClient = clients.find(c => c._id === selected);
+                    return (
+                      <Box component="span" sx={{ color: '#333', fontSize: '1rem', fontWeight: 500 }}>
+                        {selectedClient ? `${selectedClient.name} (${selectedClient.type})` : selected}
+                      </Box>
+                    );
+                  }}
                   sx={{
                     bgcolor: 'rgba(255, 255, 255, 0.8)',
                     borderRadius: 2,
+                    minHeight: '56px',
+                    '& .MuiSelect-select': {
+                      py: 1.5,
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                      display: 'flex',
+                      alignItems: 'center',
+                    },
                     '& .MuiOutlinedInput-notchedOutline': {
                       borderColor: 'rgba(255, 214, 0, 0.4)',
                       borderWidth: '2px',
@@ -184,8 +216,11 @@ function CreateReport() {
                     },
                   }}
                 >
+                  <MenuItem value="" sx={{ fontSize: '1rem', fontWeight: 500, color: '#999' }}>
+                    <em>Seleccione un cliente</em>
+                  </MenuItem>
                   {clients.map((client) => (
-                    <MenuItem key={client._id} value={client._id}>
+                    <MenuItem key={client._id} value={client._id} sx={{ fontSize: '1rem', fontWeight: 500 }}>
                       {client.name} ({client.type})
                     </MenuItem>
                   ))}
@@ -197,7 +232,7 @@ function CreateReport() {
               <Autocomplete
                 multiple
                 options={technicians}
-                getOptionLabel={(option) => option.fullName}
+                getOptionLabel={(option) => option.fullName || ''}
                 value={technicians.filter((t) => formData.technicianIds.includes(t._id))}
                 onChange={(e, newValue) => {
                   setFormData((prev) => ({
@@ -209,10 +244,37 @@ function CreateReport() {
                   <TextField 
                     {...params} 
                     label="Técnicos Asignados"
+                    placeholder={formData.technicianIds.length === 0 ? 'Seleccione los técnicos' : ''}
+                    InputLabelProps={{
+                      shrink: true,
+                      sx: {
+                        fontWeight: 600,
+                        color: '#666',
+                        fontSize: '1rem',
+                        '&.Mui-focused': {
+                          color: '#FFB300',
+                        },
+                      },
+                    }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         bgcolor: 'rgba(255, 255, 255, 0.8)',
                         borderRadius: 2,
+                        minHeight: '56px !important',
+                        padding: '4px 9px !important',
+                        '& .MuiOutlinedInput-input': {
+                          py: formData.technicianIds.length === 0 ? '16px !important' : '8px !important',
+                          fontSize: '1rem !important',
+                          fontWeight: 500,
+                          minHeight: '24px !important',
+                          minWidth: '200px !important',
+                          '&::placeholder': {
+                            color: '#999',
+                            fontSize: '1rem !important',
+                            fontWeight: 500,
+                            opacity: 1,
+                          },
+                        },
                         '& fieldset': {
                           borderColor: 'rgba(255, 214, 0, 0.4)',
                           borderWidth: '2px',
@@ -224,9 +286,6 @@ function CreateReport() {
                           borderColor: '#FFB300',
                           borderWidth: '2px',
                         },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#FFB300',
                       },
                     }}
                   />
@@ -242,13 +301,52 @@ function CreateReport() {
                         bgcolor: 'rgba(255, 214, 0, 0.2)',
                         color: '#333',
                         fontWeight: 500,
+                        fontSize: '0.875rem',
+                        height: '28px',
+                        '& .MuiChip-label': {
+                          px: 1.5,
+                        },
                         '& .MuiChip-deleteIcon': {
                           color: '#666',
+                          fontSize: '18px',
                         },
                       }}
                     />
                   ))
                 }
+                noOptionsText="No hay técnicos disponibles"
+                sx={{
+                  width: '100%',
+                  '& .MuiAutocomplete-inputRoot': {
+                    minHeight: '56px !important',
+                    padding: '4px 9px !important',
+                    alignItems: 'center !important',
+                    flexWrap: 'nowrap !important',
+                    '& .MuiAutocomplete-input': {
+                      fontSize: '1rem !important',
+                      fontWeight: 500,
+                      minHeight: '24px !important',
+                      minWidth: formData.technicianIds.length === 0 ? '300px !important' : '120px !important',
+                      width: formData.technicianIds.length === 0 ? 'auto !important' : 'auto !important',
+                      padding: formData.technicianIds.length === 0 ? '16px 0 !important' : '8px 0 !important',
+                      flexGrow: formData.technicianIds.length === 0 ? 1 : 0,
+                      '&::placeholder': {
+                        color: '#999',
+                        fontSize: '1rem !important',
+                        fontWeight: 500,
+                        opacity: 1,
+                      },
+                    },
+                    '& .MuiAutocomplete-tag': {
+                      margin: '4px',
+                    },
+                    '& .MuiInputBase-input': {
+                      fontSize: '1rem !important',
+                      fontWeight: 500,
+                      minWidth: formData.technicianIds.length === 0 ? '300px !important' : '120px !important',
+                    },
+                  },
+                }}
               />
             </Grid>
 

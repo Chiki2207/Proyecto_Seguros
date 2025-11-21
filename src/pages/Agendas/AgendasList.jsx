@@ -717,10 +717,25 @@ function AgendasList() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: '120px repeat(7, 1fr)',
-              gap: { xs: 1.5, sm: 2 },
+              gridTemplateColumns: { xs: '70px repeat(7, 1fr)', sm: '90px repeat(7, 1fr)', md: '120px repeat(7, 1fr)' },
+              gap: { xs: 0.5, sm: 1, md: 1.5 },
               width: '100%',
               overflowX: 'auto',
+              pb: 1,
+              '&::-webkit-scrollbar': {
+                height: { xs: '6px', sm: '8px' },
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'rgba(255, 214, 0, 0.1)',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'rgba(255, 214, 0, 0.5)',
+                borderRadius: '4px',
+                '&:hover': {
+                  background: 'rgba(255, 214, 0, 0.7)',
+                },
+              },
             }}
           >
             {/* Header vacío para la primera columna */}
@@ -734,23 +749,23 @@ function AgendasList() {
                 <Paper
                   key={`header-${getLocalDateString(day)}`}
                   sx={{
-                    p: { xs: 1.5, sm: 2 },
+                    p: { xs: 0.75, sm: 1, md: 1.5 },
                     textAlign: 'center',
                     background: isToday
                       ? 'linear-gradient(135deg, rgba(255, 214, 0, 0.4) 0%, rgba(255, 248, 225, 1) 100%)'
                       : 'linear-gradient(135deg, #FFD600 0%, #FFB300 50%, #F9A825 100%)',
-                    borderRadius: 4,
+                    borderRadius: { xs: 2, sm: 3, md: 4 },
                     boxShadow: isToday
                       ? '0 6px 20px rgba(255, 179, 0, 0.4), 0 4px 12px rgba(0,0,0,0.1)'
                       : '0 6px 20px rgba(255, 179, 0, 0.4), 0 4px 12px rgba(0,0,0,0.1)',
                     border: isToday
-                      ? '3px solid #FFB300'
-                      : '3px solid rgba(255, 255, 255, 0.7)',
+                      ? { xs: '2px', sm: '2.5px', md: '3px' } + ' solid #FFB300'
+                      : { xs: '2px', sm: '2.5px', md: '3px' } + ' solid rgba(255, 255, 255, 0.7)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: { xs: 70, sm: 80 },
+                    minHeight: { xs: 50, sm: 60, md: 80 },
                     transition: 'all 0.3s ease',
                   }}
                 >
@@ -759,21 +774,22 @@ function AgendasList() {
                     sx={{
                       fontWeight: 800,
                       color: '#000',
-                      fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                      fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.8rem' },
                       textTransform: 'uppercase',
-                      mb: 0.5,
-                      letterSpacing: 0.5,
+                      mb: { xs: 0.25, sm: 0.4, md: 0.5 },
+                      letterSpacing: { xs: 0.3, sm: 0.4, md: 0.5 },
                       textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
+                      lineHeight: 1,
                     }}
                   >
                     {diasSemanaCortos[day.getDay()]}
                   </Typography>
                   <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{
                       fontWeight: 900,
                       color: '#000',
-                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
                       lineHeight: 1,
                       textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
                     }}
@@ -794,23 +810,23 @@ function AgendasList() {
                   {/* Celda de hora */}
                   <Paper
                     sx={{
-                      p: { xs: 1.5, sm: 2 },
+                      p: { xs: 0.75, sm: 1, md: 1.5 },
                       textAlign: 'center',
                       background: isCurrentHour
                         ? 'linear-gradient(135deg, rgba(255, 214, 0, 0.4) 0%, rgba(255, 248, 225, 1) 100%)'
                         : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 231, 0.95) 100%)',
-                      borderRadius: 4,
+                      borderRadius: { xs: 2, sm: 3, md: 4 },
                       boxShadow: isCurrentHour
                         ? '0 6px 20px rgba(255, 179, 0, 0.4), 0 4px 12px rgba(0,0,0,0.1)'
                         : '0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(255, 214, 0, 0.1)',
                       border: isCurrentHour
-                        ? '3px solid #FFB300'
-                        : '2px solid rgba(255, 214, 0, 0.3)',
+                        ? { xs: '1.5px', sm: '2px', md: '3px' } + ' solid #FFB300'
+                        : { xs: '1px', sm: '1.5px', md: '2px' } + ' solid rgba(255, 214, 0, 0.3)',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      minHeight: { xs: 70, sm: 80 },
+                      minHeight: { xs: 60, sm: 70, md: 80 },
                       position: 'sticky',
                       left: 0,
                       zIndex: 1,
@@ -820,9 +836,10 @@ function AgendasList() {
                     <AccessTimeIcon 
                       sx={{ 
                         color: isCurrentHour ? '#FFB300' : '#666', 
-                        fontSize: { xs: 20, sm: 24 },
+                        fontSize: { xs: 16, sm: 20, md: 24 },
                         opacity: 0.8,
-                        mb: 0.5,
+                        mb: { xs: 0.25, sm: 0.4, md: 0.5 },
+                        display: { xs: 'none', sm: 'block' },
                       }} 
                     />
                     <Typography
@@ -830,7 +847,7 @@ function AgendasList() {
                       sx={{
                         fontWeight: isCurrentHour ? 900 : 800,
                         color: isCurrentHour ? '#FFB300' : '#333',
-                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' },
                         lineHeight: 1,
                       }}
                     >
@@ -849,29 +866,32 @@ function AgendasList() {
                       <Paper
                         key={`${dayKey}-${hour}`}
                         sx={{
-                          p: { xs: 1, sm: 1.25 },
+                          p: { xs: 0.5, sm: 0.75, md: 1.25 },
                           background: isCurrentHourAndDay
                             ? 'linear-gradient(135deg, rgba(255, 214, 0, 0.25) 0%, rgba(255, 248, 225, 0.98) 100%)'
                             : isToday
                               ? 'linear-gradient(135deg, rgba(255, 214, 0, 0.12) 0%, rgba(255, 248, 225, 0.95) 100%)'
                               : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 231, 0.95) 100%)',
-                          borderRadius: 4,
+                          borderRadius: { xs: 2, sm: 3, md: 4 },
                           boxShadow: isCurrentHourAndDay
                             ? '0 4px 12px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0,0,0,0.08)'
                             : '0 2px 8px rgba(0,0,0,0.06), 0 1px 4px rgba(255, 214, 0, 0.1)',
                           border: isCurrentHourAndDay
-                            ? '2px solid rgba(255, 214, 0, 0.6)'
+                            ? { xs: '1.5px', sm: '2px' } + ' solid rgba(255, 214, 0, 0.6)'
                             : isToday
-                              ? '1.5px solid rgba(255, 214, 0, 0.4)'
-                              : '1.5px solid rgba(255, 214, 0, 0.25)',
-                          minHeight: { xs: 70, sm: 80 },
+                              ? { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.4)'
+                              : { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.25)',
+                          minHeight: { xs: 60, sm: 70, md: 80 },
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: 1,
+                          gap: { xs: 0.5, sm: 0.75, md: 1 },
                           cursor: hourAgendas.length > 0 ? 'pointer' : 'default',
                           transition: 'all 0.3s ease',
+                          overflowY: 'auto',
+                          overflowX: 'hidden',
+                          maxHeight: { xs: '80px', sm: '100px', md: '120px' },
                           '&::-webkit-scrollbar': {
-                            width: '4px',
+                            width: { xs: '2px', sm: '3px', md: '4px' },
                           },
                           '&::-webkit-scrollbar-track': {
                             background: 'rgba(255, 214, 0, 0.1)',
@@ -892,21 +912,21 @@ function AgendasList() {
                         }}
                       >
                         {hourAgendas.length === 0 ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, opacity: 0.2 }}>
-                            <EventIcon sx={{ fontSize: { xs: 18, sm: 22 }, color: '#FFD600' }} />
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, opacity: 0.2, minHeight: { xs: 30, sm: 40 } }}>
+                            <EventIcon sx={{ fontSize: { xs: 14, sm: 18, md: 22 }, color: '#FFD600' }} />
                           </Box>
                         ) : (
                           <>
-                            {hourAgendas.slice(0, 2).map((agenda) => {
+                            {hourAgendas.slice(0, isMobile ? 1 : 2).map((agenda) => {
                               const { time } = formatDateTime(agenda.fechaHora);
                               return (
                                 <Box
                                   key={agenda._id}
                                   sx={{
-                                    p: { xs: 1, sm: 1.25 },
+                                    p: { xs: 0.5, sm: 0.75, md: 1.25 },
                                     background: 'linear-gradient(135deg, rgba(255, 214, 0, 0.35) 0%, rgba(255, 248, 225, 0.95) 100%)',
-                                    borderRadius: 3,
-                                    border: '2px solid rgba(255, 214, 0, 0.55)',
+                                    borderRadius: { xs: 1.5, sm: 2, md: 3 },
+                                    border: { xs: '1px', sm: '1.5px', md: '2px' } + ' solid rgba(255, 214, 0, 0.55)',
                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     boxShadow: '0 2px 6px rgba(255, 179, 0, 0.25)',
                                     position: 'relative',
@@ -916,7 +936,7 @@ function AgendasList() {
                                       position: 'absolute',
                                       top: 0,
                                       left: 0,
-                                      width: '3px',
+                                      width: { xs: '2px', sm: '3px' },
                                       height: '100%',
                                       background: 'linear-gradient(180deg, #FFD600 0%, #FFB300 100%)',
                                     },
@@ -932,31 +952,34 @@ function AgendasList() {
                                     handleEdit(agenda);
                                   }}
                                 >
-                                  <Box sx={{ pl: 1 }}>
+                                  <Box sx={{ pl: { xs: 0.75, sm: 1 } }}>
                                     <Typography
                                       variant="caption"
                                       sx={{
                                         color: '#FFB300',
                                         fontWeight: 800,
-                                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                        fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
                                         display: 'block',
-                                        mb: 0.5,
-                                        letterSpacing: 0.3,
+                                        mb: { xs: 0.25, sm: 0.4, md: 0.5 },
+                                        letterSpacing: 0.2,
+                                        lineHeight: 1.1,
                                       }}
                                     >
                                       {time}
                                     </Typography>
                                     <Typography
-                                      variant="body2"
+                                      variant="caption"
                                       sx={{
                                         color: '#333',
                                         fontWeight: 700,
-                                        fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                                        display: 'block',
+                                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.8rem' },
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: { xs: 2, sm: 2, md: 3 },
+                                        WebkitBoxOrient: 'vertical',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
                                         lineHeight: 1.3,
+                                        wordBreak: 'break-word',
                                       }}
                                     >
                                       {agenda.titulo}
@@ -965,22 +988,23 @@ function AgendasList() {
                                 </Box>
                               );
                             })}
-                            {hourAgendas.length > 2 && (
+                            {hourAgendas.length > (isMobile ? 1 : 2) && (
                               <Typography
                                 variant="caption"
                                 sx={{
                                   color: '#FFB300',
                                   fontWeight: 800,
-                                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                  fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
                                   textAlign: 'center',
-                                  p: 0.75,
+                                  p: { xs: 0.5, sm: 0.6, md: 0.75 },
                                   background: 'linear-gradient(135deg, rgba(255, 214, 0, 0.25) 0%, rgba(255, 248, 225, 0.7) 100%)',
-                                  borderRadius: 2,
-                                  border: '1.5px solid rgba(255, 214, 0, 0.4)',
+                                  borderRadius: { xs: 1.5, sm: 2 },
+                                  border: { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.4)',
                                   boxShadow: '0 1px 3px rgba(255, 179, 0, 0.2)',
+                                  lineHeight: 1.2,
                                 }}
                               >
-                                +{hourAgendas.length - 2} más
+                                +{hourAgendas.length - (isMobile ? 1 : 2)} más
                               </Typography>
                             )}
                           </>
@@ -1044,8 +1068,9 @@ function AgendasList() {
           sx={{
             display: 'grid',
             gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: { xs: 1, sm: 1.5 },
+            gap: { xs: 0.5, sm: 1, md: 1.5 },
             width: '100%',
+            overflowX: 'hidden',
           }}
         >
           {/* Headers de días de la semana - DENTRO DE LA MATRIZ */}
@@ -1053,19 +1078,19 @@ function AgendasList() {
             <Paper
               key={`header-${dia}`}
               sx={{
-                p: { xs: 1.25, sm: 1.5, md: 1.75 },
+                p: { xs: 0.75, sm: 1, md: 1.5 },
                 textAlign: 'center',
                 background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 50%, #F9A825 100%)',
-                borderRadius: 3,
+                borderRadius: { xs: 2, sm: 3 },
                 boxShadow: '0 4px 12px rgba(255, 179, 0, 0.35), 0 2px 6px rgba(0,0,0,0.1)',
-                border: '2px solid rgba(255, 255, 255, 0.6)',
+                border: { xs: '1.5px', sm: '2px' } + ' solid rgba(255, 255, 255, 0.6)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 overflow: 'hidden',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: { xs: 50, sm: 55, md: 60 },
+                minHeight: { xs: 40, sm: 50, md: 60 },
                 '&::before': {
                   content: '""',
                   position: 'absolute',
@@ -1083,18 +1108,19 @@ function AgendasList() {
               }}
             >
               <Typography
-                variant="subtitle1"
+                variant="subtitle2"
                 sx={{
                   fontWeight: 800,
                   color: '#000',
-                  fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
-                  letterSpacing: 0.8,
+                  fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.9rem' },
+                  letterSpacing: { xs: 0.3, sm: 0.5, md: 0.8 },
                   textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
                   position: 'relative',
                   zIndex: 1,
+                  lineHeight: 1.2,
                 }}
               >
-                {dia}
+                {diasSemanaCortos[index]}
               </Typography>
             </Paper>
           ))}
@@ -1105,8 +1131,8 @@ function AgendasList() {
                   key={index}
                   sx={{
                     aspectRatio: '1',
-                    minHeight: { xs: 120, sm: 140, md: 160 },
-                    borderRadius: 3,
+                    minHeight: { xs: 0, sm: 100, md: 140 },
+                    borderRadius: { xs: 2, sm: 3 },
                     background: 'linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)',
                     border: '1px solid rgba(0,0,0,0.03)',
                   }}
@@ -1118,24 +1144,26 @@ function AgendasList() {
             const dayAgendas = agendasByDay[dayKey] || [];
             const isToday = isSameDate(dayObj.date, new Date());
             const isCurrentMonth = dayObj.isCurrentMonth;
+            const maxAgendasToShow = isMobile ? 2 : 3;
 
             return (
               <Paper
                 key={index}
                 sx={{
-                  p: { xs: 1, sm: 1.25, md: 1.5 },
+                  p: { xs: 0.5, sm: 0.75, md: 1 },
                   aspectRatio: '1',
-                  minHeight: { xs: 120, sm: 140, md: 160 },
+                  minHeight: { xs: 0, sm: 100, md: 140 },
+                  height: { xs: 'auto', sm: '100%' },
                   background: isToday
                     ? 'linear-gradient(135deg, rgba(255, 214, 0, 0.25) 0%, rgba(255, 248, 225, 0.98) 100%)'
                     : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 231, 0.95) 100%)',
-                  borderRadius: 3,
+                  borderRadius: { xs: 2, sm: 3 },
                   boxShadow: isToday
-                    ? '0 6px 20px rgba(255, 179, 0, 0.35), 0 4px 12px rgba(0,0,0,0.12)'
-                    : '0 3px 10px rgba(0,0,0,0.08), 0 1px 4px rgba(255, 214, 0, 0.1)',
+                    ? '0 4px 12px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0,0,0,0.1)'
+                    : '0 2px 6px rgba(0,0,0,0.06), 0 1px 3px rgba(255, 214, 0, 0.08)',
                   border: isToday 
-                    ? '2.5px solid #FFB300' 
-                    : '1.5px solid rgba(255, 214, 0, 0.25)',
+                    ? { xs: '2px', sm: '2.5px' } + ' solid #FFB300' 
+                    : { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.25)',
                   cursor: isCurrentMonth ? 'pointer' : 'default',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
@@ -1148,14 +1176,14 @@ function AgendasList() {
                     top: 0,
                     left: 0,
                     right: 0,
-                    height: '4px',
+                    height: { xs: '3px', sm: '4px' },
                     background: 'linear-gradient(90deg, #FFD600 0%, #FFB300 50%, #F9A825 100%)',
-                    borderRadius: '3px 3px 0 0',
+                    borderRadius: { xs: '2px 2px 0 0', sm: '3px 3px 0 0' },
                   } : {},
                   '&:hover': isCurrentMonth ? {
-                    boxShadow: '0 10px 28px rgba(255, 214, 0, 0.25), 0 6px 16px rgba(0,0,0,0.12)',
-                    transform: 'translateY(-3px) scale(1.02)',
-                    borderColor: isToday ? '#F9A825' : 'rgba(255, 214, 0, 0.5)',
+                    boxShadow: '0 6px 16px rgba(255, 214, 0, 0.2), 0 3px 8px rgba(0,0,0,0.1)',
+                    transform: 'translateY(-2px) scale(1.01)',
+                    borderColor: isToday ? '#F9A825' : 'rgba(255, 214, 0, 0.4)',
                   } : {},
                 }}
                 onClick={() => {
@@ -1169,8 +1197,9 @@ function AgendasList() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    mb: 1,
-                    minHeight: { xs: 45, sm: 50, md: 55 },
+                    mb: { xs: 0.5, sm: 0.75 },
+                    minHeight: { xs: 32, sm: 40, md: 50 },
+                    flexShrink: 0,
                   }}
                 >
                   <Typography
@@ -1178,12 +1207,13 @@ function AgendasList() {
                     sx={{
                       fontWeight: 700,
                       color: isToday ? '#FFB300' : '#666',
-                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                      fontSize: { xs: '0.5rem', sm: '0.6rem', md: '0.65rem' },
                       textTransform: 'uppercase',
-                      letterSpacing: 0.5,
-                      mb: 0.25,
+                      letterSpacing: { xs: 0.2, sm: 0.3, md: 0.5 },
+                      mb: { xs: 0.1, sm: 0.2 },
                       textAlign: 'center',
-                      opacity: 0.85,
+                      opacity: 0.8,
+                      lineHeight: 1,
                     }}
                   >
                     {diasSemanaCortos[dayObj.date.getDay()]}
@@ -1193,9 +1223,9 @@ function AgendasList() {
                     sx={{
                       fontWeight: isToday ? 900 : 800,
                       color: isToday ? '#FFB300' : '#333',
-                      fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' },
+                      fontSize: { xs: '1rem', sm: '1.2rem', md: '1.4rem' },
                       textAlign: 'center',
-                      textShadow: isToday ? '0 2px 4px rgba(255, 179, 0, 0.3)' : 'none',
+                      textShadow: isToday ? '0 1px 3px rgba(255, 179, 0, 0.3)' : 'none',
                       lineHeight: 1,
                     }}
                   >
@@ -1206,13 +1236,15 @@ function AgendasList() {
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 0.5,
+                    gap: { xs: 0.25, sm: 0.4, md: 0.5 },
                     flex: 1,
+                    overflowY: 'auto',
                     overflowX: 'hidden',
-                    pr: 0.5,
+                    pr: { xs: 0.25, sm: 0.5 },
                     minHeight: 0,
+                    maxHeight: { xs: '60px', sm: '80px', md: '100px' },
                     '&::-webkit-scrollbar': {
-                      width: '4px',
+                      width: { xs: '2px', sm: '3px' },
                     },
                     '&::-webkit-scrollbar-track': {
                       background: 'rgba(255, 214, 0, 0.1)',
@@ -1234,30 +1266,31 @@ function AgendasList() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         flex: 1,
-                        opacity: 0.3,
+                        opacity: 0.2,
+                        minHeight: { xs: 20, sm: 30 },
                       }}
                     >
-                      <EventIcon sx={{ fontSize: { xs: 20, sm: 24 }, color: '#FFD600' }} />
+                      <EventIcon sx={{ fontSize: { xs: 14, sm: 18, md: 20 }, color: '#FFD600' }} />
                     </Box>
                   ) : (
                     <>
-                      {dayAgendas.slice(0, 3).map((agenda) => {
+                      {dayAgendas.slice(0, maxAgendasToShow).map((agenda) => {
                         const { time } = formatDateTime(agenda.fechaHora);
                         return (
                           <Box
                             key={agenda._id}
                             sx={{
-                              p: { xs: 0.5, sm: 0.6 },
+                              p: { xs: 0.4, sm: 0.5, md: 0.6 },
                               background: 'linear-gradient(135deg, rgba(255, 214, 0, 0.28) 0%, rgba(255, 248, 225, 0.85) 100%)',
-                              borderRadius: 1.5,
-                              border: '1.5px solid rgba(255, 214, 0, 0.45)',
+                              borderRadius: { xs: 1, sm: 1.25, md: 1.5 },
+                              border: { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.45)',
                               cursor: 'pointer',
                               transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                              boxShadow: '0 1px 3px rgba(255, 179, 0, 0.2)',
+                              boxShadow: '0 1px 2px rgba(255, 179, 0, 0.2)',
                               '&:hover': {
                                 background: 'linear-gradient(135deg, rgba(255, 214, 0, 0.38) 0%, rgba(255, 248, 225, 0.95) 100%)',
-                                transform: 'translateX(3px)',
-                                boxShadow: '0 2px 6px rgba(255, 179, 0, 0.35)',
+                                transform: 'translateX(2px)',
+                                boxShadow: '0 2px 4px rgba(255, 179, 0, 0.3)',
                                 borderColor: 'rgba(255, 214, 0, 0.65)',
                               },
                             }}
@@ -1271,10 +1304,11 @@ function AgendasList() {
                               sx={{
                                 color: '#FFB300',
                                 fontWeight: 800,
-                                fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                fontSize: { xs: '0.5rem', sm: '0.6rem', md: '0.65rem' },
                                 display: 'block',
-                                mb: 0.15,
-                                letterSpacing: 0.2,
+                                mb: { xs: 0.1, sm: 0.15 },
+                                letterSpacing: 0.1,
+                                lineHeight: 1.1,
                               }}
                             >
                               {time}
@@ -1284,7 +1318,7 @@ function AgendasList() {
                               sx={{
                                 color: '#333',
                                 fontWeight: 700,
-                                fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                                fontSize: { xs: '0.55rem', sm: '0.65rem', md: '0.7rem' },
                                 display: 'block',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -1297,23 +1331,24 @@ function AgendasList() {
                           </Box>
                         );
                       })}
-                      {dayAgendas.length > 3 && (
+                      {dayAgendas.length > maxAgendasToShow && (
                         <Typography
                           variant="caption"
                           sx={{
                             color: '#FFB300',
                             fontWeight: 800,
-                            fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                            fontSize: { xs: '0.55rem', sm: '0.65rem', md: '0.7rem' },
                             textAlign: 'center',
-                            mt: 0.25,
-                            p: 0.5,
+                            mt: { xs: 0.1, sm: 0.2 },
+                            p: { xs: 0.3, sm: 0.4, md: 0.5 },
                             background: 'linear-gradient(135deg, rgba(255, 214, 0, 0.2) 0%, rgba(255, 248, 225, 0.6) 100%)',
-                            borderRadius: 1.5,
-                            border: '1.5px solid rgba(255, 214, 0, 0.4)',
+                            borderRadius: { xs: 1, sm: 1.25, md: 1.5 },
+                            border: { xs: '1px', sm: '1.5px' } + ' solid rgba(255, 214, 0, 0.4)',
                             boxShadow: '0 1px 2px rgba(255, 179, 0, 0.2)',
+                            lineHeight: 1.2,
                           }}
                         >
-                          +{dayAgendas.length - 3}
+                          +{dayAgendas.length - maxAgendasToShow} más
                         </Typography>
                       )}
                     </>
@@ -1553,14 +1588,41 @@ function AgendasList() {
         maxWidth="sm"
         fullWidth
         fullScreen={isMobile}
-        sx={{
-          '& .MuiDialog-paper': {
+        PaperProps={{
+          sx: {
             m: { xs: 0, sm: 2 },
             borderRadius: { xs: 0, sm: 4 },
-            maxHeight: { xs: '100vh', sm: '95vh' },
+            maxHeight: { xs: '100vh', sm: '90vh' },
+            height: { xs: '100vh', sm: 'auto' },
             display: 'flex',
             flexDirection: 'column',
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 231, 0.95) 100%)',
+            overflow: 'hidden',
+          },
+        }}
+        sx={{
+          '& .MuiDialog-container': {
+            alignItems: { xs: 'stretch', sm: 'center' },
+          },
+          '& .MuiDialogContent-root': {
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            flex: '1 1 auto',
+            minHeight: 0,
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'rgba(255, 214, 0, 0.1)',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(255, 214, 0, 0.5)',
+              borderRadius: '4px',
+              '&:hover': {
+                background: 'rgba(255, 214, 0, 0.7)',
+              },
+            },
           },
         }}
       >
@@ -1570,16 +1632,22 @@ function AgendasList() {
             color: '#000',
             fontWeight: 700,
             py: 2,
+            px: 3,
             flexShrink: 0,
           }}
         >
           {editingAgenda ? 'Editar Agenda' : 'Crear Nueva Agenda'}
         </DialogTitle>
         <DialogContent 
+          dividers
           sx={{ 
-            p: 3,
+            p: { xs: 2.5, sm: 3 },
+            pt: { xs: 3, sm: 3.5 },
+            pb: { xs: 2, sm: 2.5 },
             overflowY: 'auto',
+            overflowX: 'hidden',
             flex: '1 1 auto',
+            minHeight: 0,
             '&::-webkit-scrollbar': {
               width: '8px',
             },
@@ -1610,37 +1678,83 @@ function AgendasList() {
 
 function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
   const [formData, setFormData] = useState({
-    fechaHora: '',
+    fecha: '',
+    hora: '09:00 AM',
     titulo: '',
     descripcion: '',
   });
   const [loading, setLoading] = useState(false);
 
+  // Convertir hora 24h a formato 12h AM/PM
+  const convertir24hA12h = (hora24) => {
+    const [horas, minutos] = hora24.split(':').map(Number);
+    let horas12 = horas;
+    let periodo = 'AM';
+    
+    if (horas === 0) {
+      horas12 = 12;
+    } else if (horas === 12) {
+      horas12 = 12;
+      periodo = 'PM';
+    } else if (horas > 12) {
+      horas12 = horas - 12;
+      periodo = 'PM';
+    }
+    
+    return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
+  };
+
+  // Convertir hora 12h AM/PM a formato 24h
+  const convertir12hA24h = (hora12) => {
+    const [horaMin, periodo] = hora12.split(' ');
+    const [horas, minutos] = horaMin.split(':').map(Number);
+    let horas24 = horas;
+    
+    if (periodo === 'PM' && horas !== 12) {
+      horas24 = horas + 12;
+    } else if (periodo === 'AM' && horas === 12) {
+      horas24 = 0;
+    }
+    
+    return `${String(horas24).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+  };
+
+  // Generar opciones de hora en formato 12h AM/PM (cada 30 minutos)
+  const horas = [];
+  for (let h = 1; h <= 12; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      horas.push(`${h}:${String(m).padStart(2, '0')} AM`);
+    }
+  }
+  for (let h = 1; h <= 12; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      horas.push(`${h}:${String(m).padStart(2, '0')} PM`);
+    }
+  }
+
   useEffect(() => {
     if (agenda) {
       const fechaHora = new Date(agenda.fechaHora);
-      // Convertir a hora local para el input datetime-local
       const year = fechaHora.getFullYear();
       const month = String(fechaHora.getMonth() + 1).padStart(2, '0');
       const day = String(fechaHora.getDate()).padStart(2, '0');
       const hours = String(fechaHora.getHours()).padStart(2, '0');
       const minutes = String(fechaHora.getMinutes()).padStart(2, '0');
-      const fechaHoraStr = `${year}-${month}-${day}T${hours}:${minutes}`;
+      const hora24 = `${hours}:${minutes}`;
       setFormData({
-        fechaHora: fechaHoraStr,
+        fecha: `${year}-${month}-${day}`,
+        hora: convertir24hA12h(hora24),
         titulo: agenda.titulo || '',
         descripcion: agenda.descripcion || '',
       });
     } else {
       const now = new Date();
-      now.setHours(9, 0, 0, 0);
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
       setFormData({
-        fechaHora: `${year}-${month}-${day}T${hours}:${minutes}`,
+        fecha: `${year}-${month}-${day}`,
+        hora: '9:00 AM',
         titulo: '',
         descripcion: '',
       });
@@ -1660,17 +1774,20 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
     e.preventDefault();
     setError('');
 
-    if (!formData.fechaHora || !formData.titulo) {
-      setError('Fecha/Hora y Título son requeridos');
+    if (!formData.fecha || !formData.hora || !formData.titulo) {
+      setError('Fecha, Hora y Título son requeridos');
       return;
     }
 
     setLoading(true);
 
     try {
-      // El input datetime-local ya da la fecha en hora local, solo la enviamos
+      // Convertir hora de formato 12h a 24h para enviar al backend
+      const hora24 = convertir12hA24h(formData.hora);
+      // Combinar fecha y hora en formato ISO
+      const fechaHora = `${formData.fecha}T${hora24}`;
       const agendaData = {
-        fechaHora: formData.fechaHora,
+        fechaHora: fechaHora,
         titulo: formData.titulo.trim(),
         descripcion: formData.descripcion.trim(),
       };
@@ -1711,25 +1828,59 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit}>
+    <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', minHeight: 'fit-content' }}>
       <Grid container spacing={2.5}>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label="Fecha y Hora"
-            name="fechaHora"
-            type="datetime-local"
-            value={formData.fechaHora}
+            label="Fecha"
+            name="fecha"
+            type="date"
+            value={formData.fecha}
             onChange={handleChange}
             required
             InputLabelProps={{ shrink: true }}
             sx={{
               ...inputStyles,
+              '& .MuiOutlinedInput-root': {
+                minHeight: '56px',
+              },
               '& .MuiOutlinedInput-input': {
                 py: 1.5,
+                fontSize: { xs: '0.95rem', sm: '1rem' },
               },
             }}
           />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            select
+            label="Hora"
+            name="hora"
+            value={formData.hora}
+            onChange={handleChange}
+            required
+            SelectProps={{
+              native: true,
+            }}
+            sx={{
+              ...inputStyles,
+              '& .MuiOutlinedInput-root': {
+                minHeight: '56px',
+              },
+              '& .MuiOutlinedInput-input': {
+                py: 1.5,
+                fontSize: { xs: '0.95rem', sm: '1rem' },
+              },
+            }}
+          >
+            {horas.map((hora) => (
+              <option key={hora} value={hora}>
+                {hora}
+              </option>
+            ))}
+          </TextField>
         </Grid>
 
         <Grid item xs={12}>
@@ -1760,16 +1911,17 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
         </Grid>
       </Grid>
 
-      <DialogActions sx={{ mt: 2, px: 0, flexShrink: 0 }}>
+      <DialogActions sx={{ p: { xs: 2, sm: 3 }, pt: { xs: 1, sm: 2 }, flexShrink: 0, gap: 1 }}>
         <Button
           onClick={onCancel}
           disabled={loading}
           sx={{
             color: '#555',
             fontWeight: 600,
-            px: 2.5,
-            py: 1,
+            px: { xs: 2, sm: 2.5 },
+            py: { xs: 0.75, sm: 1 },
             borderRadius: 2,
+            fontSize: { xs: '0.875rem', sm: '1rem' },
             '&:hover': {
               bgcolor: 'rgba(0,0,0,0.05)',
             },
@@ -1786,12 +1938,12 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
             background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
             color: '#000',
             fontWeight: 700,
-            px: 3,
-            py: 1.5,
+            px: { xs: 2.5, sm: 3 },
+            py: { xs: 1, sm: 1.5 },
             borderRadius: 2,
             boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
             textTransform: 'none',
-            fontSize: '1rem',
+            fontSize: { xs: '0.875rem', sm: '1rem' },
             '&:hover': {
               background: 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
               boxShadow: '0 6px 16px rgba(255, 214, 0, 0.4)',
