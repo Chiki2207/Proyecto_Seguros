@@ -78,13 +78,17 @@ function CreateReport() {
     setLoading(true);
 
     try {
-      const result = await reportsAPI.create({
+      const reportData = {
         clientId: formData.clientId,
         technicianIds: formData.technicianIds,
         diagnosticoInicial: formData.diagnosticoInicial,
         causa: formData.causa,
         acciones: formData.acciones,
-      });
+      };
+      
+      console.log('Enviando datos del reporte:', reportData);
+      
+      const result = await reportsAPI.create(reportData);
 
       navigate(`/reports/${result.reportId}`);
     } catch (error) {

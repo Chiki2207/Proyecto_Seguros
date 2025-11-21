@@ -75,6 +75,7 @@
  * @property {MaterialUsed[]} materialsUsed
  * @property {ServiceBilled[]} servicesBilled
  * @property {"FACTURADO" | "NO_FACTURADO" | "PENDIENTE"} billedStatus
+ * @property {number} valor - Valor del reporte (-1 = no definido/no facturado, > -1 = facturado). Solo puede ser establecido/actualizado por ADMIN
  * @property {Date} createdAt
  * @property {Date} updatedAt
  */

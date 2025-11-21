@@ -29,6 +29,8 @@ router.post('/', authenticateToken, requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Cliente no encontrado' });
     }
 
+    // Al crear un reporte, siempre se establece valor en -1 (no definido) y NO_FACTURADO
+    // Solo el ADMIN puede definir el valor posteriormente en los detalles
     const newReport = {
       clientId: new ObjectId(clientId),
       createdBy: new ObjectId(req.user.userId),
@@ -40,9 +42,13 @@ router.post('/', authenticateToken, requireAuth, async (req, res) => {
       materialsUsed: [],
       servicesBilled: [],
       billedStatus: 'NO_FACTURADO',
+      valor: -1,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    console.log('Creando reporte con valor:', -1, 'billedStatus: NO_FACTURADO');
+    console.log('Body recibido:', { clientId, technicianIds, diagnosticoInicial, causa, acciones });
 
     const result = await reportsCollection.insertOne(newReport);
 
@@ -350,6 +356,7 @@ router.patch('/:id', authenticateToken, requireAuth, async (req, res) => {
       servicesBilled,
       billedStatus,
       technicianIds,
+      valor,
     } = req.body;
 
     const db = getDB();
@@ -382,9 +389,22 @@ router.patch('/:id', authenticateToken, requireAuth, async (req, res) => {
     if (acciones !== undefined) update.acciones = acciones;
     if (materialsUsed !== undefined) update.materialsUsed = materialsUsed;
     if (servicesBilled !== undefined) update.servicesBilled = servicesBilled;
-    if (billedStatus !== undefined) update.billedStatus = billedStatus;
     if (technicianIds !== undefined) {
       update.technicianIds = technicianIds.map((tid) => new ObjectId(tid));
+    }
+    
+    // Solo ADMIN puede actualizar el valor
+    // Si se actualiza el valor, también se actualiza automáticamente el billedStatus
+    if (valor !== undefined && req.user.role === 'ADMIN') {
+      const newValor = Number(valor);
+      update.valor = newValor;
+      // Si el valor es -1, NO_FACTURADO, de lo contrario FACTURADO
+      update.billedStatus = (newValor === -1) ? 'NO_FACTURADO' : 'FACTURADO';
+    }
+    
+    // Si se envía billedStatus explícitamente, respetarlo (pero normalmente se actualiza automáticamente con valor)
+    if (billedStatus !== undefined) {
+      update.billedStatus = billedStatus;
     }
 
     await reportsCollection.updateOne({ _id: new ObjectId(id) }, { $set: update });
@@ -414,14 +434,23 @@ router.patch('/:id', authenticateToken, requireAuth, async (req, res) => {
       });
     }
 
-    if (req.body.comment && req.user.role === 'ADMIN') {
-      historyEntries.push({
-        reportId: new ObjectId(id),
-        userId: new ObjectId(req.user.userId),
-        createdAt: new Date(),
-        type: 'NOTA_ADMIN',
-        comment: req.body.comment,
-      });
+    // Registrar cambio de valor en el historial solo si cambió
+    if (valor !== undefined && req.user.role === 'ADMIN') {
+      const oldValor = currentReport.valor !== undefined && currentReport.valor !== null ? currentReport.valor : -1;
+      const newValor = Number(valor) || -1;
+      if (oldValor !== newValor) {
+        const oldValorText = oldValor === -1 ? 'No definido' : `$${oldValor.toLocaleString('es-ES')}`;
+        const newValorText = newValor === -1 ? 'No definido' : `$${newValor.toLocaleString('es-ES')}`;
+        const statusChange = (oldValor === -1 && newValor !== -1) ? ' - Estado cambiado a FACTURADO' : 
+                            (oldValor !== -1 && newValor === -1) ? ' - Estado cambiado a NO_FACTURADO' : '';
+        historyEntries.push({
+          reportId: new ObjectId(id),
+          userId: new ObjectId(req.user.userId),
+          createdAt: new Date(),
+          type: 'NOTA_ADMIN',
+          comment: `Valor actualizado de ${oldValorText} a ${newValorText}${statusChange}`,
+        });
+      }
     }
 
     if (historyEntries.length > 0) {

@@ -24,6 +24,8 @@ import {
   Select,
   MenuItem,
   Alert,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import { keyframes } from '@emotion/react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -33,6 +35,10 @@ import HistoryIcon from '@mui/icons-material/History';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { reportsAPI } from '../../services/api';
 import ReportTimeline from '../../components/ReportTimeline/ReportTimeline';
 import UnifiedReportForm from '../../components/UnifiedReportForm/UnifiedReportForm';
@@ -122,6 +128,13 @@ const typewriterLine = keyframes`
 function ReportDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Función helper para formatear números con separador de miles (coma)
+  const formatNumber = (num) => {
+    if (num === null || num === undefined) return '0';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+  
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -136,6 +149,10 @@ function ReportDetail() {
   const [changingEstado, setChangingEstado] = useState(false);
   const [newEstado, setNewEstado] = useState('');
   const [errorEstado, setErrorEstado] = useState('');
+  const [editingValor, setEditingValor] = useState(false);
+  const [newValor, setNewValor] = useState('');
+  const [changingValor, setChangingValor] = useState(false);
+  const [errorValor, setErrorValor] = useState('');
 
   useEffect(() => {
     loadReport();
@@ -157,6 +174,8 @@ function ReportDetail() {
     // Inicializar el estado cuando se carga el reporte
     if (report) {
       setNewEstado(report.estado || 'PENDIENTE');
+      const currentValor = report.valor !== undefined && report.valor !== null && report.valor !== -1 ? report.valor : -1;
+      setNewValor(currentValor === -1 ? '' : currentValor.toString());
     }
   }, [report]);
 
@@ -176,6 +195,31 @@ function ReportDetail() {
       setErrorEstado(error.message || 'Error al actualizar el estado');
     } finally {
       setChangingEstado(false);
+    }
+  };
+
+  const handleChangeValor = async () => {
+    // Si está vacío o es -1, establecer como -1 (no facturado)
+    const valorNumber = newValor === '' || newValor === '-1' ? -1 : Number(newValor) || -1;
+    const currentValor = report.valor !== undefined && report.valor !== null ? report.valor : -1;
+    
+    if (valorNumber === currentValor) {
+      setEditingValor(false);
+      return;
+    }
+
+    setChangingValor(true);
+    setErrorValor('');
+
+    try {
+      await reportsAPI.update(id, { valor: valorNumber });
+      await loadReport();
+      setEditingValor(false);
+    } catch (error) {
+      console.error('Error actualizando valor:', error);
+      setErrorValor(error.message || 'Error al actualizar el valor');
+    } finally {
+      setChangingValor(false);
     }
   };
 
@@ -1211,6 +1255,240 @@ function ReportDetail() {
               <Typography color="text.secondary" sx={{ textAlign: 'center' }}>No hay servicios facturados</Typography>
             )}
           </Paper>
+
+          {/* 8. Monto del Siniestro - Solo para ADMIN - Al Final */}
+          {isAdmin && (
+            <Paper
+              sx={{
+                p: { xs: 3, sm: 4 },
+                bgcolor: '#FFFFFF',
+                borderRadius: 3,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                border: '2px solid rgba(76, 175, 80, 0.3)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 245, 233, 0.3) 100%)',
+                animation: animationStep >= 1 ? `${writeIn} 0.6s ease-out 6s both` : 'none',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: '#4CAF50',
+                  mb: 3,
+                  textAlign: 'center',
+                  animation: animationStep >= 1 ? `${slideDown} 0.5s ease-out 6.1s both` : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 1,
+                }}
+              >
+                <AttachMoneyIcon sx={{ fontSize: 28 }} />
+                Monto del Siniestro
+              </Typography>
+              <Divider sx={{ mb: 3, borderColor: 'rgba(76, 175, 80, 0.3)' }} />
+
+              {errorValor && (
+                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setErrorValor('')}>
+                  {errorValor}
+                </Alert>
+              )}
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: '600px', mx: 'auto' }}>
+                {!editingValor ? (
+                  <Box
+                    sx={{
+                      p: 2.5,
+                      bgcolor: '#E8F5E9',
+                      borderRadius: 2,
+                      border: '1px solid rgba(76, 175, 80, 0.2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#666', mb: 0.5 }}>
+                          Monto Actual
+                        </Typography>
+                        {(report.valor === undefined || report.valor === null || report.valor === -1) ? (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 700,
+                              color: '#FF9800',
+                              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                            }}
+                          >
+                            No definido (No facturado)
+                          </Typography>
+                        ) : (
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontWeight: 700,
+                              color: '#4CAF50',
+                              fontSize: { xs: '1.5rem', sm: '2rem' },
+                            }}
+                          >
+                            ${formatNumber(report.valor)}
+                          </Typography>
+                        )}
+                      </Box>
+                      <Button
+                        variant="contained"
+                        startIcon={<EditIcon />}
+                        onClick={() => {
+                          setEditingValor(true);
+                          const currentValor = report.valor !== undefined && report.valor !== null && report.valor !== -1 ? report.valor : -1;
+                          setNewValor(currentValor === -1 ? '' : currentValor.toString());
+                        }}
+                        sx={{
+                          bgcolor: '#4CAF50',
+                          color: '#FFF',
+                          fontWeight: 700,
+                          px: 3,
+                          py: 1.5,
+                          '&:hover': {
+                            bgcolor: '#45A049',
+                            transform: 'translateY(-2px)',
+                          },
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        {report.valor === -1 || report.valor === undefined || report.valor === null ? 'Definir Monto' : 'Editar Monto'}
+                      </Button>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                        Estado de Facturación
+                      </Typography>
+                      <Chip 
+                        label={report.billedStatus || 'NO_FACTURADO'} 
+                        size="small"
+                        color={report.billedStatus === 'FACTURADO' ? 'success' : 'warning'}
+                        sx={{ fontWeight: 600 }}
+                      />
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      p: 2.5,
+                      bgcolor: '#E8F5E9',
+                      borderRadius: 2,
+                      border: '1px solid rgba(76, 175, 80, 0.2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Monto del Siniestro"
+                      type="number"
+                      value={newValor}
+                      onChange={(e) => {
+                        setNewValor(e.target.value);
+                        setErrorValor('');
+                      }}
+                      placeholder="Dejar vacío para no facturado (-1)"
+                      helperText={newValor === '' || newValor === '-1' ? 'Si deja vacío o -1, el reporte será NO_FACTURADO. Si ingresa un valor, será FACTURADO automáticamente.' : `El reporte será marcado como FACTURADO con monto $${formatNumber(Number(newValor || 0))}`}
+                      InputLabelProps={{
+                        shrink: true,
+                        sx: { fontWeight: 600, color: '#666' },
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Typography sx={{ color: '#666', fontWeight: 600 }}>
+                              $
+                            </Typography>
+                          </InputAdornment>
+                        ),
+                      }}
+                      disabled={changingValor}
+                      sx={{
+                        bgcolor: '#FFFFFF',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(76, 175, 80, 0.4)',
+                          borderWidth: '2px',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(76, 175, 80, 0.6)',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#4CAF50',
+                          borderWidth: '2px',
+                        },
+                      }}
+                    />
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                      <Button
+                        variant="contained"
+                        startIcon={<SaveIcon />}
+                        onClick={handleChangeValor}
+                        disabled={changingValor}
+                        sx={{
+                          flex: 1,
+                          bgcolor: '#4CAF50',
+                          color: '#FFF',
+                          fontWeight: 700,
+                          py: 1.5,
+                          '&:hover': {
+                            bgcolor: '#45A049',
+                            transform: 'translateY(-2px)',
+                          },
+                          '&:disabled': {
+                            bgcolor: '#E0E0E0',
+                            color: '#9E9E9E',
+                          },
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        {changingValor ? (
+                          <>
+                            <CircularProgress size={20} sx={{ mr: 1, color: '#FFF' }} />
+                            Guardando...
+                          </>
+                        ) : (
+                          'Guardar Monto'
+                        )}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<CancelIcon />}
+                        onClick={() => {
+                          setEditingValor(false);
+                          const currentValor = report.valor !== undefined && report.valor !== null && report.valor !== -1 ? report.valor : -1;
+                          setNewValor(currentValor === -1 ? '' : currentValor.toString());
+                          setErrorValor('');
+                        }}
+                        disabled={changingValor}
+                        sx={{
+                          flex: 1,
+                          borderColor: '#666',
+                          color: '#666',
+                          fontWeight: 600,
+                          py: 1.5,
+                          '&:hover': {
+                            borderColor: '#000',
+                            bgcolor: 'rgba(0,0,0,0.05)',
+                          },
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Paper>
+          )}
         </Box>
       </Box>
 
