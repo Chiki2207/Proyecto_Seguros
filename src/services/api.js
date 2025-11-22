@@ -29,6 +29,11 @@ async function fetchAPI(endpoint, options = {}) {
     throw new Error(error.error || `Error ${response.status}`);
   }
 
+  // Manejar respuestas 204 (sin contenido) como DELETE exitoso
+  if (response.status === 204) {
+    return { success: true };
+  }
+
   return response.json();
 }
 

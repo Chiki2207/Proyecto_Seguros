@@ -33,7 +33,7 @@ function ReportsList() {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(true);
-  const [filterType, setFilterType] = useState('todos'); // 'todos', 'cliente', 'tecnico', 'intervalo', 'fecha', 'id', 'cedula'
+  const [filterType, setFilterType] = useState('todos'); // 'todos', 'cliente', 'tecnico', 'intervalo', 'fecha', 'id', 'cedula', 'codigoInternoCliente', 'nombreCliente'
   const [filters, setFilters] = useState({
     estado: '',
     clientId: '',
@@ -43,6 +43,8 @@ function ReportsList() {
     fechaEspecifica: '',
     reportId: '',
     cedula: '',
+    codigoInternoCliente: '',
+    nombreCliente: '',
   });
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -180,14 +182,34 @@ function ReportsList() {
         );
       }
     } else if (filterType === 'cedula') {
-      // Filtro por número de cédula del técnico
+      // Filtro por número de cédula del técnico/trabajador
       if (filters.cedula) {
-        const searchCedula = filters.cedula.trim();
+        const searchCedula = filters.cedula.trim().toLowerCase();
         filtered = filtered.filter((r) => {
           if (!r.technicians || r.technicians.length === 0) return false;
           return r.technicians.some((tech) => 
-            tech.documentNumber?.toString().includes(searchCedula)
+            tech.documentNumber?.toString().toLowerCase().includes(searchCedula)
           );
+        });
+      }
+    } else if (filterType === 'codigoInternoCliente') {
+      // Filtro por código interno del cliente
+      if (filters.codigoInternoCliente) {
+        const searchCodigo = filters.codigoInternoCliente.trim().toLowerCase();
+        filtered = filtered.filter((r) => {
+          if (!r.client) return false;
+          const codigo = r.client.codigoInterno?.toString().toLowerCase() || '';
+          return codigo.includes(searchCodigo);
+        });
+      }
+    } else if (filterType === 'nombreCliente') {
+      // Filtro por nombre del cliente
+      if (filters.nombreCliente) {
+        const searchNombre = filters.nombreCliente.trim().toLowerCase();
+        filtered = filtered.filter((r) => {
+          if (!r.client) return false;
+          const nombre = r.client.name?.toLowerCase() || '';
+          return nombre.includes(searchNombre);
         });
       }
     }
@@ -207,6 +229,8 @@ function ReportsList() {
       fechaEspecifica: '',
       reportId: '',
       cedula: '',
+      codigoInternoCliente: '',
+      nombreCliente: '',
     });
   };
 
@@ -218,7 +242,9 @@ function ReportsList() {
       filters.fechaHasta || 
       filters.fechaEspecifica || 
       filters.reportId || 
-      filters.cedula
+      filters.cedula ||
+      filters.codigoInternoCliente ||
+      filters.nombreCliente
     ));
   };
 
@@ -234,6 +260,8 @@ function ReportsList() {
       fechaEspecifica: '',
       reportId: '',
       cedula: '',
+      codigoInternoCliente: '',
+      nombreCliente: '',
     }));
   };
 
@@ -520,7 +548,13 @@ function ReportsList() {
                         Por ID de Reporte
                       </MenuItem>
                       <MenuItem value="cedula" sx={{ fontSize: '1rem', fontWeight: 500 }}>
-                        Por Número de Cédula
+                        Por Cédula del Trabajador
+                      </MenuItem>
+                      <MenuItem value="codigoInternoCliente" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Código Interno del Cliente
+                      </MenuItem>
+                      <MenuItem value="nombreCliente" sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                        Por Nombre del Cliente
                       </MenuItem>
                     </Select>
                   </FormControl>
@@ -530,11 +564,25 @@ function ReportsList() {
                   {filterType === 'cliente' && (
                     <Grid item xs={12} sm={6} md={3}>
                       <FormControl fullWidth>
-                        <InputLabel sx={{ fontWeight: 600, color: '#666', fontSize: '1rem' }}>Seleccionar Cliente</InputLabel>
                         <Select
-                          value={filters.clientId}
+                          value={filters.clientId || ''}
                           onChange={(e) => handleFilterChange('clientId', e.target.value)}
-                          label="Seleccionar Cliente"
+                          displayEmpty
+                          renderValue={(selected) => {
+                            if (!selected || selected === '') {
+                              return (
+                                <Box component="span" sx={{ color: '#999', fontSize: '1rem', fontWeight: 500 }}>
+                                  Seleccione un cliente
+                                </Box>
+                              );
+                            }
+                            const client = clients.find((c) => c._id === selected);
+                            return (
+                              <Box component="span" sx={{ color: '#333', fontSize: '1rem', fontWeight: 500 }}>
+                                {client?.name || selected}
+                              </Box>
+                            );
+                          }}
                           sx={{
                             borderRadius: 2,
                             bgcolor: '#FFFDE7',
@@ -545,7 +593,6 @@ function ReportsList() {
                               py: 1.5,
                               fontSize: '1rem',
                               fontWeight: 500,
-                              color: filters.clientId ? '#333' : '#999',
                             },
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'rgba(255, 214, 0, 0.4)',
@@ -575,11 +622,25 @@ function ReportsList() {
                   {filterType === 'tecnico' && (
                     <Grid item xs={12} sm={6} md={3}>
                       <FormControl fullWidth>
-                        <InputLabel sx={{ fontWeight: 600, color: '#666', fontSize: '1rem' }}>Seleccionar Técnico</InputLabel>
                         <Select
-                          value={filters.technicianId}
+                          value={filters.technicianId || ''}
                           onChange={(e) => handleFilterChange('technicianId', e.target.value)}
-                          label="Seleccionar Técnico"
+                          displayEmpty
+                          renderValue={(selected) => {
+                            if (!selected || selected === '') {
+                              return (
+                                <Box component="span" sx={{ color: '#999', fontSize: '1rem', fontWeight: 500 }}>
+                                  Seleccione un técnico
+                                </Box>
+                              );
+                            }
+                            const tech = technicians.find((t) => t._id === selected);
+                            return (
+                              <Box component="span" sx={{ color: '#333', fontSize: '1rem', fontWeight: 500 }}>
+                                {tech ? `${tech.fullName} - ${tech.documentNumber}` : selected}
+                              </Box>
+                            );
+                          }}
                           sx={{
                             borderRadius: 2,
                             bgcolor: '#FFFDE7',
@@ -590,7 +651,6 @@ function ReportsList() {
                               py: 1.5,
                               fontSize: '1rem',
                               fontWeight: 500,
-                              color: filters.technicianId ? '#333' : '#999',
                             },
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'rgba(255, 214, 0, 0.4)',
@@ -739,12 +799,82 @@ function ReportsList() {
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField
                       fullWidth
-                      label="Número de Cédula"
+                      label="Cédula del Trabajador"
                       value={filters.cedula}
                       onChange={(e) => handleFilterChange('cedula', e.target.value)}
                       placeholder="Ej: 1234567890"
+                      helperText="Buscar por número de cédula del trabajador"
                       InputLabelProps={{
                         sx: { fontWeight: 600, color: '#666' },
+                      }}
+                      FormHelperTextProps={{
+                        sx: { fontSize: '0.75rem', mt: 0.5 },
+                      }}
+                      sx={{
+                        borderRadius: 2,
+                        bgcolor: '#FFFDE7',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(255, 214, 0, 0.4)',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(255, 214, 0, 0.6)',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#FFB300',
+                          borderWidth: 2,
+                        },
+                      }}
+                    />
+                  </Grid>
+                )}
+
+                {filterType === 'codigoInternoCliente' && (
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      fullWidth
+                      label="Código Interno del Cliente"
+                      value={filters.codigoInternoCliente}
+                      onChange={(e) => handleFilterChange('codigoInternoCliente', e.target.value)}
+                      placeholder="Ej: CL-001"
+                      helperText="Escribe el código interno del cliente"
+                      InputLabelProps={{
+                        sx: { fontWeight: 600, color: '#666' },
+                      }}
+                      FormHelperTextProps={{
+                        sx: { fontSize: '0.75rem', mt: 0.5 },
+                      }}
+                      sx={{
+                        borderRadius: 2,
+                        bgcolor: '#FFFDE7',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(255, 214, 0, 0.4)',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'rgba(255, 214, 0, 0.6)',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#FFB300',
+                          borderWidth: 2,
+                        },
+                      }}
+                    />
+                  </Grid>
+                )}
+
+                {filterType === 'nombreCliente' && (
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      fullWidth
+                      label="Nombre del Cliente"
+                      value={filters.nombreCliente}
+                      onChange={(e) => handleFilterChange('nombreCliente', e.target.value)}
+                      placeholder="Ej: Empresa XYZ"
+                      helperText="Escribe el nombre del cliente"
+                      InputLabelProps={{
+                        sx: { fontWeight: 600, color: '#666' },
+                      }}
+                      FormHelperTextProps={{
+                        sx: { fontSize: '0.75rem', mt: 0.5 },
                       }}
                       sx={{
                         borderRadius: 2,

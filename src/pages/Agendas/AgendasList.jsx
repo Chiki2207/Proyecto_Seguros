@@ -21,6 +21,7 @@ import {
   Tab,
   Chip,
   InputAdornment,
+  Snackbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -33,6 +34,8 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import EventIcon from '@mui/icons-material/Event';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { agendasAPI } from '../../services/api';
 
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -78,6 +81,12 @@ function AgendasList() {
   const [viewType, setViewType] = useState('dia');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [error, setError] = useState('');
+  const [viewingAgenda, setViewingAgenda] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [agendaToDelete, setAgendaToDelete] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [successOpen, setSuccessOpen] = useState(false);
 
   useEffect(() => {
     loadAgendas();
@@ -159,7 +168,9 @@ function AgendasList() {
     setError('');
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = (message = 'Agenda guardada exitosamente') => {
+    setSuccessMessage(message);
+    setSuccessOpen(true);
     handleClose();
     loadAgendas();
   };
@@ -384,12 +395,35 @@ function AgendasList() {
         ) : (
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: '120px 1fr',
-              gap: { xs: 1.5, sm: 2 },
+              display: 'flex',
+              justifyContent: 'center',
               width: '100%',
+              px: { xs: 0, sm: 2, md: 3 },
+              overflowX: 'hidden',
             }}
           >
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { 
+                  xs: '80px 1fr', 
+                  sm: '110px 1fr', 
+                  md: '130px 1fr',
+                  lg: '140px 1fr' 
+                },
+                gap: { xs: 1, sm: 2, md: 2.5 },
+                width: '100%',
+                maxWidth: { 
+                  xs: '100%', 
+                  sm: '700px', 
+                  md: '900px',
+                  lg: '1000px',
+                  xl: '1100px'
+                },
+                mx: 'auto',
+                px: { xs: 1, sm: 0 },
+              }}
+            >
             {/* Header de horas */}
             <Paper
               sx={{
@@ -402,10 +436,10 @@ function AgendasList() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: { xs: 60, sm: 70 },
-                position: 'sticky',
-                left: 0,
-                zIndex: 2,
+                minHeight: { xs: 50, sm: 70 },
+                position: { xs: 'static', sm: 'sticky' },
+                left: { xs: 'auto', sm: 0 },
+                zIndex: { xs: 0, sm: 2 },
               }}
             >
               <Typography
@@ -478,9 +512,9 @@ function AgendasList() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       minHeight: { xs: 70, sm: 80 },
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 1,
+                      position: { xs: 'static', sm: 'sticky' },
+                      left: { xs: 'auto', sm: 0 },
+                      zIndex: { xs: 0, sm: 1 },
                       transition: 'all 0.3s ease',
                     }}
                   >
@@ -525,6 +559,12 @@ function AgendasList() {
                       flexDirection: 'column',
                       gap: 1.5,
                       transition: 'all 0.3s ease',
+                      width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
                       '&::-webkit-scrollbar': {
                         width: '6px',
                       },
@@ -556,6 +596,9 @@ function AgendasList() {
                             boxShadow: '0 2px 8px rgba(255, 179, 0, 0.2)',
                             position: 'relative',
                             overflow: 'hidden',
+                            width: '100%',
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
                             '&::before': {
                               content: '""',
                               position: 'absolute',
@@ -572,9 +615,38 @@ function AgendasList() {
                               borderColor: 'rgba(255, 214, 0, 0.7)',
                             },
                           }}
-                          onClick={() => handleEdit(agenda)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingAgenda(agenda);
+                            setViewModalOpen(true);
+                          }}
                         >
-                          <Box sx={{ pl: 1.5 }}>
+                          <Box sx={{ pl: 1.5, position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', pr: { xs: 3, sm: 4 } }}>
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(agenda);
+                              }}
+                              size="small"
+                              sx={{
+                                position: 'absolute',
+                                top: -8,
+                                right: -8,
+                                bgcolor: '#FFB300',
+                                color: '#000',
+                                width: { xs: 28, sm: 32 },
+                                height: { xs: 28, sm: 32 },
+                                '&:hover': {
+                                  bgcolor: '#F9A825',
+                                  transform: 'scale(1.1)',
+                                },
+                                boxShadow: '0 2px 8px rgba(255, 179, 0, 0.4)',
+                                transition: 'all 0.2s ease',
+                                zIndex: 10,
+                              }}
+                            >
+                              <EditIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                            </IconButton>
                             <Typography
                               variant="caption"
                               sx={{
@@ -584,6 +656,8 @@ function AgendasList() {
                                 display: 'block',
                                 mb: 1,
                                 letterSpacing: 0.5,
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
                               }}
                             >
                               {time}
@@ -596,6 +670,9 @@ function AgendasList() {
                                 fontSize: { xs: '0.9rem', sm: '1rem' },
                                 lineHeight: 1.4,
                                 mb: 0.5,
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                hyphens: 'auto',
                               }}
                             >
                               {agenda.titulo}
@@ -608,6 +685,15 @@ function AgendasList() {
                                   fontSize: { xs: '0.8rem', sm: '0.875rem' },
                                   lineHeight: 1.5,
                                   mt: 1,
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  wordBreak: 'break-word',
+                                  overflowWrap: 'break-word',
+                                  hyphens: 'auto',
+                                  maxWidth: '100%',
                                 }}
                               >
                                 {agenda.descripcion}
@@ -621,6 +707,7 @@ function AgendasList() {
                 </React.Fragment>
               );
             })}
+            </Box>
           </Box>
         )}
       </Box>
@@ -1628,15 +1715,40 @@ function AgendasList() {
       >
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
+            background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 50%, #F9A825 100%)',
             color: '#000',
             fontWeight: 700,
-            py: 2,
+            py: 2.5,
             px: 3,
             flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            boxShadow: '0 4px 12px rgba(255, 179, 0, 0.3)',
           }}
         >
-          {editingAgenda ? 'Editar Agenda' : 'Crear Nueva Agenda'}
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              bgcolor: 'rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <EventIcon sx={{ fontSize: 28, color: '#000' }} />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#000', mb: 0.5 }}>
+              {editingAgenda ? 'Editar Agenda' : 'Crear Nueva Agenda'}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8, color: '#000' }}>
+              {editingAgenda ? 'Actualiza la información de tu agenda' : 'Completa los datos para crear una nueva agenda'}
+            </Typography>
+          </Box>
         </DialogTitle>
         <DialogContent 
           dividers
@@ -1672,6 +1784,457 @@ function AgendasList() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Modal de visualización de agenda - Solo para vista de día */}
+      {viewType === 'dia' && (
+        <Dialog
+          open={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setViewingAgenda(null);
+          }}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 253, 231, 0.9) 100%)',
+              boxShadow: '0 8px 32px rgba(255, 179, 0, 0.2)',
+            },
+          }}
+        >
+          {viewingAgenda && (
+            <>
+              <DialogTitle
+                sx={{
+                  background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
+                  color: '#000',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  py: 2,
+                  px: 3,
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <EventIcon sx={{ fontSize: 32 }} />
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    Detalle de la Cita
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <IconButton
+                    onClick={() => {
+                      if (viewingAgenda) {
+                        setAgendaToDelete(viewingAgenda);
+                        setDeleteConfirmOpen(true);
+                      }
+                    }}
+                    disabled={loading}
+                    sx={{
+                      color: '#d32f2f',
+                      '&:hover': {
+                        bgcolor: 'rgba(211, 47, 47, 0.1)',
+                      },
+                      '&:disabled': {
+                        color: '#999',
+                      },
+                    }}
+                    title="Eliminar agenda"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      setViewModalOpen(false);
+                      setViewingAgenda(null);
+                    }}
+                    sx={{
+                      color: '#000',
+                      '&:hover': {
+                        bgcolor: 'rgba(0, 0, 0, 0.1)',
+                      },
+                    }}
+                    title="Cerrar"
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              </DialogTitle>
+
+              <DialogContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* Título */}
+                  <Paper
+                    sx={{
+                      p: 2.5,
+                      bgcolor: '#FFF8E1',
+                      borderRadius: 2,
+                      border: '1px solid rgba(255, 214, 0, 0.3)',
+                      width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 1 }}>
+                      Título
+                    </Typography>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#333',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        hyphens: 'auto',
+                        maxWidth: '100%',
+                        width: '100%',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {viewingAgenda.titulo}
+                    </Typography>
+                  </Paper>
+
+                  {/* Fecha y Hora */}
+                  <Paper
+                    sx={{
+                      p: 2.5,
+                      bgcolor: '#E8F5E9',
+                      borderRadius: 2,
+                      border: '1px solid rgba(76, 175, 80, 0.3)',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <CalendarTodayIcon sx={{ color: '#4CAF50', fontSize: 24 }} />
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block' }}>
+                            Fecha
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#333' }}>
+                            {formatDateTime(viewingAgenda.fechaHora).date}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <AccessTimeIcon sx={{ color: '#4CAF50', fontSize: 24 }} />
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block' }}>
+                            Hora
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#333' }}>
+                            {formatDateTime(viewingAgenda.fechaHora).time}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                          Día de la Semana
+                        </Typography>
+                        <Chip
+                          label={formatDateTime(viewingAgenda.fechaHora).dayOfWeek}
+                          sx={{
+                            bgcolor: '#4CAF50',
+                            color: '#FFF',
+                            fontWeight: 600,
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Paper>
+
+                  {/* Descripción */}
+                  {viewingAgenda.descripcion && (
+                    <Paper
+                      sx={{
+                        p: 2.5,
+                        bgcolor: '#E3F2FD',
+                        borderRadius: 2,
+                        border: '1px solid rgba(33, 150, 243, 0.3)',
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 1.5 }}>
+                        Descripción
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: '#333',
+                          lineHeight: 1.8,
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {viewingAgenda.descripcion}
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
+              </DialogContent>
+
+              <DialogActions sx={{ p: 3, pt: 0 }}>
+                <Button
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    setViewingAgenda(null);
+                  }}
+                  variant="outlined"
+                  sx={{
+                    borderColor: '#666',
+                    color: '#666',
+                    fontWeight: 600,
+                    px: 3,
+                    '&:hover': {
+                      borderColor: '#000',
+                      bgcolor: 'rgba(0, 0, 0, 0.05)',
+                    },
+                  }}
+                >
+                  Cerrar
+                </Button>
+                <Button
+                  onClick={() => {
+                    setViewModalOpen(false);
+                    handleEdit(viewingAgenda);
+                  }}
+                  variant="contained"
+                  startIcon={<EditIcon />}
+                  sx={{
+                    background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
+                    color: '#000',
+                    fontWeight: 700,
+                    px: 3,
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  Editar
+                </Button>
+              </DialogActions>
+            </>
+          )}
+        </Dialog>
+      )}
+
+      {/* Dialog de confirmación de eliminación */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => {
+          if (!loading) {
+            setDeleteConfirmOpen(false);
+            setAgendaToDelete(null);
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 250, 235, 0.95) 100%)',
+            boxShadow: '0 8px 32px rgba(211, 47, 47, 0.2)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)',
+            color: '#FFF',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            py: 2.5,
+            px: 3,
+          }}
+        >
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <DeleteIcon sx={{ fontSize: 28, color: '#FFF' }} />
+          </Box>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#FFF' }}>
+              Confirmar Eliminación
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.9, color: '#FFF' }}>
+              Esta acción no se puede deshacer
+            </Typography>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body1" sx={{ color: '#333', lineHeight: 1.8 }}>
+              ¿Estás seguro de que deseas eliminar la agenda?
+            </Typography>
+            {agendaToDelete && (
+              <Paper
+                sx={{
+                  p: 2,
+                  bgcolor: '#FFF8E1',
+                  borderRadius: 2,
+                  border: '1px solid rgba(255, 179, 0, 0.3)',
+                }}
+              >
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                  Título
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: '#333' }}>
+                  {agendaToDelete.titulo}
+                </Typography>
+                {agendaToDelete.fechaHora && (
+                  <>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.5, mt: 1 }}>
+                      Fecha y Hora
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#666' }}>
+                      {formatDateTime(agendaToDelete.fechaHora).date} - {formatDateTime(agendaToDelete.fechaHora).time}
+                    </Typography>
+                  </>
+                )}
+              </Paper>
+            )}
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              Esta acción eliminará permanentemente la agenda. No podrás recuperarla después.
+            </Alert>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, pt: 0, gap: 1.5 }}>
+          <Button
+            onClick={() => {
+              setDeleteConfirmOpen(false);
+              setAgendaToDelete(null);
+            }}
+            disabled={loading}
+            variant="outlined"
+            sx={{
+              borderColor: '#666',
+              color: '#666',
+              fontWeight: 600,
+              px: 3,
+              '&:hover': {
+                borderColor: '#000',
+                bgcolor: 'rgba(0, 0, 0, 0.05)',
+              },
+              '&:disabled': {
+                borderColor: '#ccc',
+                color: '#ccc',
+              },
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={async () => {
+              if (!agendaToDelete || !agendaToDelete._id) {
+                setError('Error: ID de agenda no válido');
+                setDeleteConfirmOpen(false);
+                setAgendaToDelete(null);
+                return;
+              }
+
+              try {
+                setLoading(true);
+                setError('');
+                console.log('Eliminando agenda con ID:', agendaToDelete._id);
+                const result = await agendasAPI.remove(agendaToDelete._id);
+                console.log('Resultado de eliminación:', result);
+                setDeleteConfirmOpen(false);
+                setViewModalOpen(false);
+                setViewingAgenda(null);
+                setAgendaToDelete(null);
+                await loadAgendas();
+              } catch (error) {
+                console.error('Error eliminando agenda:', error);
+                console.error('ID intentado:', agendaToDelete._id);
+                setError(error.message || 'Error al eliminar la agenda. Por favor, intenta de nuevo.');
+                setDeleteConfirmOpen(false);
+                setAgendaToDelete(null);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            variant="contained"
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+            sx={{
+              background: 'linear-gradient(135deg, #d32f2f 0%, #c62828 100%)',
+              color: '#FFF',
+              fontWeight: 700,
+              px: 3,
+              '&:hover': {
+                background: 'linear-gradient(135deg, #c62828 0%, #b71c1c 100%)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)',
+              },
+              '&:disabled': {
+                background: '#E0E0E0',
+                color: '#9E9E9E',
+              },
+            }}
+          >
+            {loading ? 'Eliminando...' : 'Eliminar Agenda'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar de éxito */}
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={4000}
+        onClose={() => setSuccessOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{
+          '& .MuiSnackbarContent-root': {
+            borderRadius: 3,
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setSuccessOpen(false)}
+          severity="success"
+          variant="filled"
+          icon={<CheckCircleIcon sx={{ fontSize: 24 }} />}
+          sx={{
+            width: '100%',
+            bgcolor: 'linear-gradient(135deg, #4CAF50 0%, #43A047 100%)',
+            color: '#FFF',
+            fontWeight: 600,
+            borderRadius: 3,
+            boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1.5, sm: 2 },
+            '& .MuiAlert-icon': {
+              color: '#FFF',
+              fontSize: { xs: 24, sm: 28 },
+            },
+            '& .MuiAlert-message': {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+            },
+          }}
+        >
+          <Typography variant="body1" sx={{ fontWeight: 600, color: '#FFF' }}>
+            {successMessage || 'Operación exitosa'}
+          </Typography>
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
@@ -1794,10 +2357,11 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
 
       if (agenda) {
         await agendasAPI.update(agenda._id, agendaData);
+        onSuccess('Agenda actualizada exitosamente');
       } else {
         await agendasAPI.create(agendaData);
+        onSuccess('Agenda creada exitosamente');
       }
-      onSuccess();
     } catch (error) {
       console.error('Error guardando agenda:', error);
       setError(error.message || 'Error al guardar la agenda');
@@ -1808,122 +2372,285 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
 
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
-      bgcolor: 'rgba(255, 255, 255, 0.9)',
+      bgcolor: 'rgba(255, 255, 255, 0.95)',
       borderRadius: 2,
+      transition: 'all 0.3s ease',
       '& fieldset': {
         borderColor: 'rgba(255, 214, 0, 0.4)',
         borderWidth: '2px',
       },
       '&:hover fieldset': {
-        borderColor: 'rgba(255, 214, 0, 0.6)',
+        borderColor: 'rgba(255, 214, 0, 0.7)',
+        boxShadow: '0 2px 8px rgba(255, 214, 0, 0.2)',
       },
       '&.Mui-focused fieldset': {
         borderColor: '#FFB300',
         borderWidth: '2px',
+        boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
       },
     },
     '& .MuiInputLabel-root.Mui-focused': {
       color: '#FFB300',
+      fontWeight: 600,
     },
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', minHeight: 'fit-content' }}>
-      <Grid container spacing={2.5}>
+      <Grid container spacing={3}>
+        {/* Fecha */}
         <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Fecha"
-            name="fecha"
-            type="date"
-            value={formData.fecha}
-            onChange={handleChange}
-            required
-            InputLabelProps={{ shrink: true }}
+          <Paper
             sx={{
-              ...inputStyles,
-              '& .MuiOutlinedInput-root': {
-                minHeight: '56px',
-              },
-              '& .MuiOutlinedInput-input': {
-                py: 1.5,
-                fontSize: { xs: '0.95rem', sm: '1rem' },
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            select
-            label="Hora"
-            name="hora"
-            value={formData.hora}
-            onChange={handleChange}
-            required
-            SelectProps={{
-              native: true,
-            }}
-            sx={{
-              ...inputStyles,
-              '& .MuiOutlinedInput-root': {
-                minHeight: '56px',
-              },
-              '& .MuiOutlinedInput-input': {
-                py: 1.5,
-                fontSize: { xs: '0.95rem', sm: '1rem' },
+              p: 2,
+              bgcolor: '#E8F5E9',
+              borderRadius: 3,
+              border: '1px solid rgba(76, 175, 80, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                boxShadow: '0 4px 12px rgba(76, 175, 80, 0.2)',
+                transform: 'translateY(-2px)',
               },
             }}
           >
-            {horas.map((hora) => (
-              <option key={hora} value={hora}>
-                {hora}
-              </option>
-            ))}
-          </TextField>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: '#4CAF50',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(76, 175, 80, 0.3)',
+                }}
+              >
+                <CalendarTodayIcon sx={{ fontSize: 20, color: '#FFF' }} />
+              </Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#4CAF50', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Fecha
+              </Typography>
+            </Box>
+            <TextField
+              fullWidth
+              name="fecha"
+              type="date"
+              value={formData.fecha}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ shrink: true }}
+              sx={{
+                ...inputStyles,
+                '& .MuiOutlinedInput-root': {
+                  minHeight: '56px',
+                  bgcolor: '#FFF',
+                },
+                '& .MuiOutlinedInput-input': {
+                  py: 1.5,
+                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  fontWeight: 500,
+                },
+              }}
+            />
+          </Paper>
         </Grid>
 
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Título"
-            name="titulo"
-            value={formData.titulo}
-            onChange={handleChange}
-            required
-            placeholder="Ej: Llamada con cliente, Revisión técnica..."
-            sx={inputStyles}
-          />
+        {/* Hora */}
+        <Grid item xs={12} sm={6}>
+          <Paper
+            sx={{
+              p: 2,
+              bgcolor: '#E3F2FD',
+              borderRadius: 3,
+              border: '1px solid rgba(33, 150, 243, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                boxShadow: '0 4px 12px rgba(33, 150, 243, 0.2)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: '#2196F3',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)',
+                }}
+              >
+                <AccessTimeIcon sx={{ fontSize: 20, color: '#FFF' }} />
+              </Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#2196F3', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Hora
+              </Typography>
+            </Box>
+            <TextField
+              fullWidth
+              select
+              name="hora"
+              value={formData.hora}
+              onChange={handleChange}
+              required
+              SelectProps={{
+                native: true,
+              }}
+              sx={{
+                ...inputStyles,
+                '& .MuiOutlinedInput-root': {
+                  minHeight: '56px',
+                  bgcolor: '#FFF',
+                },
+                '& .MuiOutlinedInput-input': {
+                  py: 1.5,
+                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  fontWeight: 500,
+                },
+              }}
+            >
+              {horas.map((hora) => (
+                <option key={hora} value={hora}>
+                  {hora}
+                </option>
+              ))}
+            </TextField>
+          </Paper>
         </Grid>
 
+        {/* Título */}
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Descripción"
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleChange}
-            multiline
-            rows={4}
-            placeholder="Descripción detallada de la agenda..."
-            sx={inputStyles}
-          />
+          <Paper
+            sx={{
+              p: 2,
+              bgcolor: '#FFF8E1',
+              borderRadius: 3,
+              border: '1px solid rgba(255, 214, 0, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                boxShadow: '0 4px 12px rgba(255, 214, 0, 0.2)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: '#FFB300',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(255, 179, 0, 0.3)',
+                }}
+              >
+                <Typography sx={{ fontSize: 20, color: '#000', fontWeight: 700 }}>T</Typography>
+              </Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#FFB300', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Título
+              </Typography>
+              <Chip label="Requerido" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: '#FFD600', color: '#000', fontWeight: 600 }} />
+            </Box>
+            <TextField
+              fullWidth
+              name="titulo"
+              value={formData.titulo}
+              onChange={handleChange}
+              required
+              placeholder="Ej: Llamada con cliente, Revisión técnica..."
+              sx={{
+                ...inputStyles,
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#FFF',
+                },
+              }}
+            />
+          </Paper>
+        </Grid>
+
+        {/* Descripción */}
+        <Grid item xs={12}>
+          <Paper
+            sx={{
+              p: 2,
+              bgcolor: '#F3E5F5',
+              borderRadius: 3,
+              border: '1px solid rgba(156, 39, 176, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                boxShadow: '0 4px 12px rgba(156, 39, 176, 0.2)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: '#9C27B0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(156, 39, 176, 0.3)',
+                }}
+              >
+                <Typography sx={{ fontSize: 18, color: '#FFF', fontWeight: 700 }}>📝</Typography>
+              </Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: '#9C27B0', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Descripción
+              </Typography>
+              <Chip label="Opcional" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: '#CE93D8', color: '#4A148C', fontWeight: 600 }} />
+            </Box>
+            <TextField
+              fullWidth
+              name="descripcion"
+              value={formData.descripcion}
+              onChange={handleChange}
+              multiline
+              rows={4}
+              placeholder="Descripción detallada de la agenda..."
+              sx={{
+                ...inputStyles,
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#FFF',
+                },
+              }}
+            />
+          </Paper>
         </Grid>
       </Grid>
 
-      <DialogActions sx={{ p: { xs: 2, sm: 3 }, pt: { xs: 1, sm: 2 }, flexShrink: 0, gap: 1 }}>
+      <DialogActions sx={{ p: { xs: 2.5, sm: 3 }, pt: { xs: 2, sm: 2.5 }, flexShrink: 0, gap: 1.5, bgcolor: 'rgba(255, 253, 231, 0.5)' }}>
         <Button
           onClick={onCancel}
           disabled={loading}
+          startIcon={<CloseIcon />}
+          variant="outlined"
           sx={{
-            color: '#555',
+            borderColor: '#666',
+            color: '#666',
             fontWeight: 600,
-            px: { xs: 2, sm: 2.5 },
-            py: { xs: 0.75, sm: 1 },
+            px: { xs: 2.5, sm: 3 },
+            py: { xs: 1, sm: 1.25 },
             borderRadius: 2,
             fontSize: { xs: '0.875rem', sm: '1rem' },
+            textTransform: 'none',
             '&:hover': {
-              bgcolor: 'rgba(0,0,0,0.05)',
+              borderColor: '#000',
+              bgcolor: 'rgba(0, 0, 0, 0.05)',
+              transform: 'translateY(-1px)',
+            },
+            '&:disabled': {
+              borderColor: '#ccc',
+              color: '#ccc',
             },
             transition: 'all 0.3s ease',
           }}
@@ -1934,19 +2661,36 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
           type="submit"
           variant="contained"
           disabled={loading}
+          startIcon={
+            loading ? (
+              <CircularProgress size={20} color="inherit" sx={{ color: '#000' }} />
+            ) : agenda ? (
+              <CheckCircleIcon />
+            ) : (
+              <EventIcon />
+            )
+          }
           sx={{
-            background: 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
+            background: agenda
+              ? 'linear-gradient(135deg, #4CAF50 0%, #43A047 100%)'
+              : 'linear-gradient(135deg, #FFD600 0%, #FFB300 100%)',
             color: '#000',
             fontWeight: 700,
-            px: { xs: 2.5, sm: 3 },
-            py: { xs: 1, sm: 1.5 },
+            px: { xs: 3, sm: 4 },
+            py: { xs: 1.25, sm: 1.5 },
             borderRadius: 2,
-            boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
+            boxShadow: agenda
+              ? '0 4px 12px rgba(76, 175, 80, 0.3)'
+              : '0 4px 12px rgba(255, 214, 0, 0.3)',
             textTransform: 'none',
             fontSize: { xs: '0.875rem', sm: '1rem' },
             '&:hover': {
-              background: 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
-              boxShadow: '0 6px 16px rgba(255, 214, 0, 0.4)',
+              background: agenda
+                ? 'linear-gradient(135deg, #43A047 0%, #388E3C 100%)'
+                : 'linear-gradient(135deg, #FFB300 0%, #F9A825 100%)',
+              boxShadow: agenda
+                ? '0 6px 16px rgba(76, 175, 80, 0.4)'
+                : '0 6px 16px rgba(255, 214, 0, 0.4)',
               transform: 'translateY(-2px)',
             },
             '&:disabled': {
@@ -1956,7 +2700,7 @@ function AgendaForm({ agenda, onSuccess, onCancel, setError }) {
             transition: 'all 0.3s ease',
           }}
         >
-          {loading ? 'Guardando...' : agenda ? 'Actualizar' : 'Crear'}
+          {loading ? 'Guardando...' : agenda ? 'Actualizar Agenda' : 'Crear Agenda'}
         </Button>
       </DialogActions>
     </Box>
