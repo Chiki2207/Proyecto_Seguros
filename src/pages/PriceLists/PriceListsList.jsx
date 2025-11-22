@@ -24,9 +24,11 @@ import {
   useTheme,
   useMediaQuery,
   Chip,
+  TextField,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import SearchIcon from '@mui/icons-material/Search';
 import { pricesAPI, clientsAPI } from '../../services/api';
 import PriceForm from './PriceForm';
 
@@ -35,6 +37,8 @@ function PriceListsList() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [prices, setPrices] = useState([]);
   const [clients, setClients] = useState([]);
+  const [filteredClientsResults, setFilteredClientsResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedClientId, setSelectedClientId] = useState('');
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -68,6 +72,17 @@ function PriceListsList() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredClientsResults([]);
+    } else {
+      const filtered = clients.filter((client) =>
+        client.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      );
+      setFilteredClientsResults(filtered);
+    }
+  }, [searchTerm, clients]);
 
   const loadPrices = async () => {
     if (!selectedClientId) return;
@@ -207,6 +222,7 @@ function PriceListsList() {
         </Box>
       </Paper>
 
+      {/* Filtros: Select de Cliente */}
       <Paper
         sx={{
           p: 3,
@@ -218,30 +234,133 @@ function PriceListsList() {
         }}
       >
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={6}>
             <FormControl fullWidth>
-              <InputLabel sx={{ fontWeight: 500 }}>Cliente</InputLabel>
+              <InputLabel sx={{ fontWeight: 500 }}>Seleccionar Cliente</InputLabel>
               <Select
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                label="Cliente"
+                label="Seleccionar Cliente"
                 sx={{
                   borderRadius: 2,
                   '& .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'rgba(255, 214, 0, 0.3)',
                   },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 214, 0, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#FFB300',
+                    borderWidth: '2px',
+                  },
                 }}
               >
-                {clients.map((client) => (
-                  <MenuItem key={client._id} value={client._id}>
-                    {client.name} ({client.type})
-                  </MenuItem>
-                ))}
+                {clients.length === 0 ? (
+                  <MenuItem disabled>No hay clientes</MenuItem>
+                ) : (
+                  clients.map((client) => (
+                    <MenuItem key={client._id} value={client._id}>
+                      {client.name} ({client.type})
+                    </MenuItem>
+                  ))
+                )}
               </Select>
             </FormControl>
           </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              placeholder="Buscar cliente por nombre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <SearchIcon sx={{ color: '#666', mr: 1 }} />
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 214, 0, 0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 214, 0, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#FFB300',
+                    borderWidth: '2px',
+                  },
+                },
+              }}
+            />
+          </Grid>
         </Grid>
       </Paper>
+
+      {/* Resultados de búsqueda de clientes */}
+      {searchTerm.trim() !== '' && (
+        <Paper
+          sx={{
+            p: 3,
+            mb: 3,
+            bgcolor: '#FFFDE7',
+            borderRadius: 3,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            border: '1px solid rgba(255, 214, 0, 0.2)',
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#666', mb: 2 }}>
+            Resultados de búsqueda: "{searchTerm}"
+          </Typography>
+          {filteredClientsResults.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+              No se encontraron clientes con el nombre "{searchTerm}"
+            </Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {filteredClientsResults.map((client) => (
+                <Grid item xs={12} sm={6} md={4} key={client._id}>
+                  <Paper
+                    onClick={() => {
+                      setSelectedClientId(client._id);
+                      setSearchTerm('');
+                    }}
+                    sx={{
+                      p: 2,
+                      cursor: 'pointer',
+                      bgcolor: selectedClientId === client._id ? '#FFF8E1' : '#FFFFFF',
+                      border: selectedClientId === client._id ? '2px solid #FFB300' : '1px solid rgba(255, 214, 0, 0.2)',
+                      borderRadius: 2,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
+                        borderColor: '#FFB300',
+                      },
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#333', mb: 0.5 }}>
+                      {client.name}
+                    </Typography>
+                    <Chip
+                      label={client.type}
+                      size="small"
+                      color={client.type === 'ASEGURADORA' ? 'primary' : 'default'}
+                      sx={{ fontWeight: 600 }}
+                    />
+                    {selectedClientId === client._id && (
+                      <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#FFB300', fontWeight: 600 }}>
+                        ✓ Seleccionado
+                      </Typography>
+                    )}
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Paper>
+      )}
 
       {selectedClient && (
         <Paper

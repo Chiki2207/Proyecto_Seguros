@@ -28,6 +28,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import SearchIcon from '@mui/icons-material/Search';
 import { clientsAPI } from '../../services/api';
 import ClientForm from './ClientForm';
 
@@ -35,6 +36,8 @@ function ClientsList() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [clients, setClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
@@ -47,12 +50,24 @@ function ClientsList() {
     try {
       const data = await clientsAPI.getAll();
       setClients(data);
+      setFilteredClients(data);
     } catch (error) {
       console.error('Error cargando clientes:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredClients(clients);
+    } else {
+      const filtered = clients.filter((client) =>
+        client.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      );
+      setFilteredClients(filtered);
+    }
+  }, [searchTerm, clients]);
 
   const handleCreate = () => {
     setEditingClient(null);
@@ -135,15 +150,54 @@ function ClientsList() {
         </Box>
       </Paper>
 
+      {/* Campo de búsqueda */}
+      <Paper
+        sx={{
+          p: 2,
+          mb: 3,
+          bgcolor: '#FFFFFF',
+          borderRadius: 3,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '1px solid rgba(255, 214, 0, 0.1)',
+        }}
+      >
+        <TextField
+          fullWidth
+          placeholder="Buscar cliente por nombre..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <SearchIcon sx={{ color: '#666', mr: 1 }} />
+            ),
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              '& fieldset': {
+                borderColor: 'rgba(255, 214, 0, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255, 214, 0, 0.5)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#FFB300',
+                borderWidth: '2px',
+              },
+            },
+          }}
+        />
+      </Paper>
+
       {/* Vista móvil: Cards */}
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        {clients.length === 0 ? (
+        {filteredClients.length === 0 ? (
           <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#FFFFFF', borderRadius: 3 }}>
             <Typography color="text.secondary">No hay clientes registrados</Typography>
           </Paper>
         ) : (
           <Grid container spacing={2}>
-            {clients.map((client) => (
+            {filteredClients.map((client) => (
               <Grid item xs={12} key={client._id}>
                 <Paper
                   sx={{
@@ -252,14 +306,14 @@ function ClientsList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {clients.length === 0 ? (
+            {filteredClients.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center">
-                  No hay clientes registrados
+                  {searchTerm ? `No se encontraron clientes con el nombre "${searchTerm}"` : 'No hay clientes registrados'}
                 </TableCell>
               </TableRow>
             ) : (
-              clients.map((client) => (
+              filteredClients.map((client) => (
                 <TableRow 
                   key={client._id} 
                   hover

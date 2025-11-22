@@ -71,7 +71,7 @@
  * @property {string} diagnosticoInicial
  * @property {string} causa
  * @property {string} acciones
- * @property {"PENDIENTE" | "EN_PROCESO" | "TERMINADO"} estado
+ * @property {"PENDIENTE" | "TERMINADO"} estado
  * @property {MaterialUsed[]} materialsUsed
  * @property {ServiceBilled[]} servicesBilled
  * @property {"FACTURADO" | "NO_FACTURADO" | "PENDIENTE"} billedStatus

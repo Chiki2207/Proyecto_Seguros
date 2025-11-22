@@ -244,8 +244,6 @@ function ReportDetail() {
     switch (estado) {
       case 'PENDIENTE':
         return 'warning';
-      case 'EN_PROCESO':
-        return 'info';
       case 'TERMINADO':
         return 'success';
       default:
@@ -451,6 +449,7 @@ function ReportDetail() {
             <Divider sx={{ mb: 3, borderColor: 'rgba(255, 214, 0, 0.3)' }} />
             
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: '600px', mx: 'auto' }}>
+                  {/* 1. Creado por */}
                   <Box
                     sx={{
                       p: 2,
@@ -466,19 +465,72 @@ function ReportDetail() {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
-                      Estado
+                      Creado por
                     </Typography>
-                    <Chip 
-                      label={report.estado} 
-                      color={getEstadoColor(report.estado)} 
-                      size="small"
-                      sx={{ 
-                        fontWeight: 600,
-                        animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1s both` : 'none',
-                      }}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          bgcolor: '#FFD600',
+                          color: '#000',
+                          fontSize: '0.875rem',
+                          fontWeight: 700,
+                          animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1s both` : 'none',
+                        }}
+                      >
+                        {report.createdByUser?.fullName?.charAt(0) || 'U'}
+                      </Avatar>
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          fontWeight: 500, 
+                          color: '#333',
+                          animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.1s both` : 'none',
+                        }}
+                      >
+                        {report.createdByUser?.fullName || 'N/A'}
+                      </Typography>
+                    </Box>
                   </Box>
                   
+                  {/* 2. Fecha de Creación */}
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: '#FFF8E1',
+                      borderRadius: 2,
+                      border: '1px solid rgba(255, 214, 0, 0.2)',
+                      animation: animationStep >= 1 ? `${writeIn} 0.5s ease-out 1.2s both` : 'none',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
+                      },
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
+                      Fecha de Creación
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: '#333',
+                        animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.3s both` : 'none',
+                      }}
+                    >
+                      {new Date(report.createdAt).toLocaleString('es-ES', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </Typography>
+                  </Box>
+                  
+                  {/* 3. Cliente */}
                   <Box
                     onClick={() => {
                       if (report.client) {
@@ -490,7 +542,7 @@ function ReportDetail() {
                       bgcolor: '#FFF8E1',
                       borderRadius: 2,
                       border: '1px solid rgba(255, 214, 0, 0.2)',
-                      animation: animationStep >= 1 ? `${writeIn} 0.5s ease-out 1.1s both` : 'none',
+                      animation: animationStep >= 1 ? `${writeIn} 0.5s ease-out 1.4s both` : 'none',
                       transition: 'all 0.3s ease',
                       cursor: report.client ? 'pointer' : 'default',
                       '&:hover': {
@@ -512,7 +564,7 @@ function ReportDetail() {
                           color: '#FFF',
                           fontSize: '1rem',
                           fontWeight: 700,
-                          animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1.2s both` : 'none',
+                          animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1.5s both` : 'none',
                         }}
                       >
                         {report.client?.type === 'ASEGURADORA' ? (
@@ -526,7 +578,7 @@ function ReportDetail() {
                         sx={{ 
                           fontWeight: 600, 
                           color: '#333',
-                          animation: animationStep >= 1 ? `${gentleFadeIn} 0.6s ease-out 1.3s both` : 'none',
+                          animation: animationStep >= 1 ? `${gentleFadeIn} 0.6s ease-out 1.6s both` : 'none',
                           flex: 1,
                         }}
                       >
@@ -538,57 +590,14 @@ function ReportDetail() {
                             color: '#666', 
                             fontSize: 18,
                             opacity: 0.7,
-                            animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.4s both` : 'none',
+                            animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.7s both` : 'none',
                           }} 
                         />
                       )}
                     </Box>
                   </Box>
                   
-                  <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: '#FFF8E1',
-                      borderRadius: 2,
-                      border: '1px solid rgba(255, 214, 0, 0.2)',
-                      animation: animationStep >= 1 ? `${writeIn} 0.5s ease-out 1.4s both` : 'none',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(255, 214, 0, 0.3)',
-                      },
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
-                      Creado por
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          bgcolor: '#FFD600',
-                          color: '#000',
-                          fontSize: '0.875rem',
-                          fontWeight: 700,
-                          animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1.6s both` : 'none',
-                        }}
-                      >
-                        {report.createdByUser?.fullName?.charAt(0) || 'U'}
-                      </Avatar>
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
-                          fontWeight: 500, 
-                          color: '#333',
-                          animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 1.7s both` : 'none',
-                        }}
-                      >
-                        {report.createdByUser?.fullName || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  
+                  {/* 4. Estado */}
                   <Box
                     sx={{
                       p: 2,
@@ -604,147 +613,20 @@ function ReportDetail() {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontWeight: 600 }}>
-                      Fecha de Creación
+                      Estado
                     </Typography>
-                    <Typography 
-                      variant="body1" 
+                    <Chip 
+                      label={report.estado} 
+                      color={getEstadoColor(report.estado)} 
+                      size="small"
                       sx={{ 
-                        fontWeight: 500, 
-                        color: '#333',
-                        animation: animationStep >= 1 ? `${gentleFadeIn} 0.5s ease-out 2s both` : 'none',
+                        fontWeight: 600,
+                        animation: animationStep >= 1 ? `${smoothScale} 0.4s ease-out 1.9s both` : 'none',
                       }}
-                    >
-                      {new Date(report.createdAt).toLocaleString('es-ES', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </Typography>
+                    />
                   </Box>
                 </Box>
           </Paper>
-
-          {/* Sección de Cambio de Estado - Solo para ADMIN */}
-          {isAdmin && (
-            <Paper
-              sx={{
-                p: { xs: 3, sm: 4 },
-                bgcolor: '#FFFFFF',
-                borderRadius: 3,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: '2px solid rgba(26, 35, 126, 0.2)',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 234, 246, 0.3) 100%)',
-                animation: animationStep >= 1 ? `${writeIn} 0.6s ease-out 2.1s both` : 'none',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 700,
-                  color: '#1A237E',
-                  mb: 3,
-                  textAlign: 'center',
-                  animation: animationStep >= 1 ? `${slideDown} 0.5s ease-out 2.2s both` : 'none',
-                }}
-              >
-                Cambiar Estado del Reporte
-              </Typography>
-              <Divider sx={{ mb: 3, borderColor: 'rgba(26, 35, 126, 0.3)' }} />
-
-              {errorEstado && (
-                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setErrorEstado('')}>
-                  {errorEstado}
-                </Alert>
-              )}
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: '600px', mx: 'auto' }}>
-                <Box
-                  sx={{
-                    p: 2.5,
-                    bgcolor: '#E8EAF6',
-                    borderRadius: 2,
-                    border: '1px solid rgba(26, 35, 126, 0.2)',
-                  }}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#666', mb: 0.5 }}>
-                        Estado Actual
-                      </Typography>
-                      <Chip
-                        label={report.estado}
-                        color={getEstadoColor(report.estado)}
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                          py: 1.5,
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1, minWidth: '200px', maxWidth: '300px' }}>
-                      <FormControl fullWidth>
-                        <InputLabel>Nuevo Estado</InputLabel>
-                        <Select
-                          value={newEstado}
-                          onChange={(e) => {
-                            setNewEstado(e.target.value);
-                            setErrorEstado('');
-                          }}
-                          label="Nuevo Estado"
-                          disabled={changingEstado}
-                          sx={{
-                            bgcolor: '#FFFFFF',
-                          }}
-                        >
-                          <MenuItem value="PENDIENTE">PENDIENTE</MenuItem>
-                          <MenuItem value="EN_PROCESO">EN_PROCESO</MenuItem>
-                          <MenuItem value="TERMINADO">TERMINADO</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-                  </Box>
-                  
-                  {newEstado !== report.estado && (
-                    <Button
-                      variant="contained"
-                      onClick={handleChangeEstado}
-                      disabled={changingEstado || !newEstado || newEstado === report.estado}
-                      fullWidth
-                      sx={{
-                        mt: 2,
-                        bgcolor: '#1A237E',
-                        color: '#FFF',
-                        fontWeight: 700,
-                        py: 1.5,
-                        '&:hover': { 
-                          bgcolor: '#283593',
-                          transform: 'translateY(-2px)',
-                        },
-                        '&:disabled': {
-                          bgcolor: '#E0E0E0',
-                          color: '#9E9E9E',
-                        },
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      {changingEstado ? (
-                        <>
-                          <CircularProgress size={20} sx={{ mr: 1, color: '#FFF' }} />
-                          Guardando...
-                        </>
-                      ) : (
-                        'Guardar Cambio de Estado'
-                      )}
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            </Paper>
-          )}
 
           {/* 2. Técnicos Asignados */}
           <Paper
@@ -1527,6 +1409,125 @@ function ReportDetail() {
                     </Box>
                   </Box>
                 )}
+              </Box>
+            </Paper>
+          )}
+
+          {/* 9. Cambiar Estado del Reporte - Solo para ADMIN - Al Final */}
+          {isAdmin && (
+            <Paper
+              sx={{
+                p: { xs: 3, sm: 4 },
+                bgcolor: '#FFFFFF',
+                borderRadius: 3,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                border: '2px solid rgba(26, 35, 126, 0.2)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 234, 246, 0.3) 100%)',
+                animation: animationStep >= 1 ? `${writeIn} 0.6s ease-out 6.5s both` : 'none',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: '#1A237E',
+                  mb: 3,
+                  textAlign: 'center',
+                  animation: animationStep >= 1 ? `${slideDown} 0.5s ease-out 6.6s both` : 'none',
+                }}
+              >
+                Cambiar Estado del Reporte
+              </Typography>
+              <Divider sx={{ mb: 3, borderColor: 'rgba(26, 35, 126, 0.3)' }} />
+
+              {errorEstado && (
+                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setErrorEstado('')}>
+                  {errorEstado}
+                </Alert>
+              )}
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: '600px', mx: 'auto' }}>
+                <Box
+                  sx={{
+                    p: 2.5,
+                    bgcolor: '#E8EAF6',
+                    borderRadius: 2,
+                    border: '1px solid rgba(26, 35, 126, 0.2)',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#666', mb: 0.5 }}>
+                        Estado Actual
+                      </Typography>
+                      <Chip
+                        label={report.estado}
+                        color={getEstadoColor(report.estado)}
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          py: 1.5,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: '200px', maxWidth: '300px' }}>
+                      <FormControl fullWidth>
+                        <InputLabel>Nuevo Estado</InputLabel>
+                        <Select
+                          value={newEstado}
+                          onChange={(e) => {
+                            setNewEstado(e.target.value);
+                            setErrorEstado('');
+                          }}
+                          label="Nuevo Estado"
+                          disabled={changingEstado}
+                          sx={{
+                            bgcolor: '#FFFFFF',
+                          }}
+                        >
+                          <MenuItem value="PENDIENTE">PENDIENTE</MenuItem>
+                          <MenuItem value="TERMINADO">TERMINADO</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </Box>
+                  
+                  {newEstado !== report.estado && (
+                    <Button
+                      variant="contained"
+                      onClick={handleChangeEstado}
+                      disabled={changingEstado || !newEstado || newEstado === report.estado}
+                      fullWidth
+                      sx={{
+                        mt: 2,
+                        bgcolor: '#1A237E',
+                        color: '#FFF',
+                        fontWeight: 700,
+                        py: 1.5,
+                        '&:hover': { 
+                          bgcolor: '#283593',
+                          transform: 'translateY(-2px)',
+                        },
+                        '&:disabled': {
+                          bgcolor: '#E0E0E0',
+                          color: '#9E9E9E',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {changingEstado ? (
+                        <>
+                          <CircularProgress size={20} sx={{ mr: 1, color: '#FFF' }} />
+                          Guardando...
+                        </>
+                      ) : (
+                        'Guardar Cambio de Estado'
+                      )}
+                    </Button>
+                  )}
+                </Box>
               </Box>
             </Paper>
           )}

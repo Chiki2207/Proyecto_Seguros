@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Card, CardContent, CircularProgress, Paper, keyframes } from '@mui/material';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PendingIcon from '@mui/icons-material/Pending';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { reportsAPI } from '../../services/api';
 
@@ -16,7 +15,6 @@ function Dashboard() {
   const [stats, setStats] = useState({
     total: 0,
     pendientes: 0,
-    enProceso: 0,
     terminados: 0,
   });
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -34,7 +32,6 @@ function Dashboard() {
       const statsData = {
         total: reports.length,
         pendientes: reports.filter((r) => r.estado === 'PENDIENTE').length,
-        enProceso: reports.filter((r) => r.estado === 'EN_PROCESO').length,
         terminados: reports.filter((r) => r.estado === 'TERMINADO').length,
       };
 
@@ -257,83 +254,6 @@ function Dashboard() {
                 }}
               >
                 {stats.pendientes}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card
-            sx={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(224, 247, 250, 0.95) 100%)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(0, 191, 165, 0.3)',
-              borderRadius: 4,
-              boxShadow: '0 6px 24px rgba(0, 191, 165, 0.2), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '5px',
-                background: 'linear-gradient(90deg, #00BFA5 0%, #26A69A 50%, #00BFA5 100%)',
-                backgroundSize: '200% 100%',
-                animation: `${shimmer} 3s ease-in-out infinite`,
-              },
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'radial-gradient(circle, rgba(0, 191, 165, 0.1) 0%, transparent 70%)',
-                opacity: 0,
-                transition: 'opacity 0.4s ease',
-              },
-              '&:hover': {
-                transform: 'translateY(-8px) scale(1.03)',
-                boxShadow: '0 12px 32px rgba(0, 191, 165, 0.3), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
-                borderColor: 'rgba(0, 191, 165, 0.5)',
-                '&::after': {
-                  opacity: 1,
-                },
-              },
-            }}
-          >
-            <CardContent sx={{ p: 3.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                <Typography 
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    color: '#666666',
-                    fontSize: '0.9rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  En Proceso
-                </Typography>
-                <PlayArrowIcon sx={{ color: '#00BFA5', fontSize: 28 }} />
-              </Box>
-              <Typography 
-                variant="h2" 
-                sx={{ 
-                  fontWeight: 800, 
-                  background: 'linear-gradient(135deg, #00BFA5 0%, #26A69A 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textAlign: 'center',
-                  fontSize: { xs: '2.5rem', sm: '3rem' },
-                }}
-              >
-                {stats.enProceso}
               </Typography>
             </CardContent>
           </Card>
